@@ -10,6 +10,10 @@
 #define MAX_CALLBACKS 4096
 #endif
 
+#define INCLUDE_COUNT 3
+const char *includes[INCLUDE_COUNT]
+    = { "event2/buffer.h", "event2/event.h", "event2/http.h" };
+
 struct callback
 {
   char name[PATH_MAX];
@@ -148,8 +152,23 @@ main (int argc, char *argv[])
       fprintf (stderr, "usage: %s DIR\n", argv[0]);
       exit (1);
     }
+
+  for (i = 0; i < INCLUDE_COUNT; i++)
+    {
+      printf ("#include <%s>\n", includes[i]);
+    }
+  printf ("\n");
+
   generate_callbacks (argv[1]);
-  // fprintf (stderr, "%i callbacks generated!\n", callback_count);
+  printf ("\n");
+
+  printf ("void register_html_callbacks (struct evhttp *http) {\n");
+  for (i = 0; i < callback_count; i++)
+    {
+      printf ("  evhttp_set_cb (http, \"%s\", %s_cb, 0);\n", cbs[i].path,
+              cbs[i].name);
+    }
+  printf ("}\n");
 
   return 0;
 }
