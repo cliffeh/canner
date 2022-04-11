@@ -1,2 +1,2 @@
-bin_PROGRAMS = canner
-canner_SOURCES = canner.c
+bin_PROGRAMS = can
+can_SOURCES = canner.c

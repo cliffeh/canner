@@ -48,10 +48,13 @@ m4/lt~obsolete.m4
 # (which is called by configure script))
 Makefile
 
+# IDE files
+.vscode/
+
 # more files to ignore
 /.deps
 /config.h
 
 # object files and binaries
-canner
+can
 *.o
