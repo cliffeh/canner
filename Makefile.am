@@ -1,6 +1,7 @@
 dist_doc_DATA = \
 	LICENSE \
-	README.md
+	README.md \
+	TODO.md
 
 SUBDIRS = src
 
