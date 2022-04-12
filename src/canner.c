@@ -14,6 +14,11 @@
 const char *includes[INCLUDE_COUNT]
     = { "event2/buffer.h", "event2/event.h", "event2/http.h" };
 
+const char *html_cb_template[] = {
+#include "html_cb.h"
+  0,
+};
+
 struct callback
 {
   char name[PATH_MAX];
@@ -41,24 +46,28 @@ generate_callback_name (char *out, const char *path)
           out[i] = c;
         }
     }
-  out[i] = 0;
 
   // ensure it's unique
   for (j = 0; j < callback_count; j++)
     {
-      if (strcmp (out, cbs[j].name) == 0)
+      if (strncmp (out, cbs[j].name, i) == 0)
         {
           out[i++] = '_';
           j = 0; // start over from the beginning
         }
     }
+
+  // null-terminate!
+  out[i] = 0;
 }
 
-void
+void // TODO should probably return a value indicating success/failure
 print_callback (const char *filename, const char *path)
 {
   FILE *fp = fopen (path, "r");
-  char c;
+  char c, *tmp;
+  int i;
+
   if (!fp)
     {
       fprintf (stderr, "error: couldn't open %s\n", filename);
@@ -67,34 +76,43 @@ print_callback (const char *filename, const char *path)
 
   generate_callback_name (cbs[callback_count].name, filename);
 
-  printf ("\nvoid %s_cb (struct evhttp_request *req, void *arg)\n"
-          "{\n"
-          "  struct evbuffer *buf = evbuffer_new ();\n"
-          "  const char *html = (const char *)arg;\n"
-          "  evbuffer_add_printf (buf,\n",
-          cbs[callback_count].name);
-
-  printf ("\"");
-  while ((c = fgetc (fp)) != EOF)
+  for (i = 0; html_cb_template[i]; i++)
     {
-      switch (c)
+      if ((tmp = strstr (html_cb_template[i], "CALLBACK_NAME")))
         {
-        case '"':
-          printf ("\\\"");
-          break;
-        case '\n':
-          printf ("\\n\"\n\"");
-          break;
-        default:
-          printf ("%c", c);
+          printf ("%s%.*s", cbs[callback_count].name,
+                  (int)(tmp - html_cb_template[i]), html_cb_template[i]);
+          tmp += strlen ("CALLBACK_NAME");
+          printf ("%s\n", tmp);
+        }
+      else if ((tmp = strstr (html_cb_template[i], "CALLBACK_CONTENT")))
+        {
+          printf ("%.*s", (int)(tmp - html_cb_template[i]),
+                  html_cb_template[i]);
+          printf ("\"");
+          while ((c = fgetc (fp)) != EOF)
+            {
+              switch (c)
+                {
+                case '"':
+                  printf ("\\\"");
+                  break;
+                case '\n':
+                  printf ("\\n\"\n\"");
+                  break;
+                default:
+                  printf ("%c", c);
+                }
+            }
+          printf ("\"");
+          tmp += strlen ("CALLBACK_CONTENT");
+          printf ("%s\n", tmp);
+        }
+      else
+        {
+          printf ("%s\n", html_cb_template[i]);
         }
     }
-  printf ("\"");
-
-  printf (");\n"
-          "  evhttp_send_reply (req, 200, \"OK\", buf);\n"
-          "  evbuffer_free(buf);\n"
-          "}\n");
 
   fclose (fp);
 }
@@ -165,7 +183,7 @@ main (int argc, char *argv[])
   printf ("void register_html_callbacks (struct evhttp *http) {\n");
   for (i = 0; i < callback_count; i++)
     {
-      printf ("  evhttp_set_cb (http, \"%s\", %s_cb, 0);\n", cbs[i].path,
+      printf ("  evhttp_set_cb (http, \"%s\", %s, 0);\n", cbs[i].path,
               cbs[i].name);
     }
   printf ("}\n");

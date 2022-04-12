@@ -1,0 +1,9 @@
+void
+CALLBACK_NAME (struct evhttp_request *req, void *arg)
+{
+  struct evbuffer *buf = evbuffer_new ();
+  const char *html = (const char *)arg;
+  evbuffer_add_printf (buf, CALLBACK_CONTENT);
+  evhttp_send_reply (req, 200, "OK", buf);
+  evbuffer_free (buf);
+}
