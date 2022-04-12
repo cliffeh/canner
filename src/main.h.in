@@ -34,6 +34,8 @@ parse_opts (int argc, char *argv[])
 
   memset (&o, 0, sizeof (o));
 
+  o.port = 0;
+
   while ((opt = getopt (argc, argv, "hp:H:v")) != -1)
     {
       switch (opt)
@@ -59,8 +61,6 @@ parse_opts (int argc, char *argv[])
 
   if (!o.bind)
     o.bind = DEFAULT_BIND;
-  if (!o.port)
-    o.port = DEFAULT_PORT;
 
   return o;
 }
@@ -72,12 +72,6 @@ main (int argc, char *argv[])
   struct evhttp *http = NULL;
   struct evhttp_bound_socket *handle = NULL;
   struct options o = parse_opts (argc, argv);
-
-  if (o.verbose)
-    {
-      LOG ("debug", "using bind: %s", o.bind);
-      LOG ("debug", "using port: %i", o.port);
-    }
 
   base = event_base_new ();
   if (!base)
@@ -96,6 +90,11 @@ main (int argc, char *argv[])
     }
 
   register_html_callbacks (http);
+
+  if (o.verbose)
+    {
+      LOG ("debug", "binding to %s:%i", o.bind, o.port);
+    }
 
   handle = evhttp_bind_socket_with_handle (http, o.bind, o.port);
   if (!handle)
