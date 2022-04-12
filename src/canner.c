@@ -10,12 +10,22 @@
 #define MAX_CALLBACKS 4096
 #endif
 
-#define INCLUDE_COUNT 3
-const char *includes[INCLUDE_COUNT]
-    = { "event2/buffer.h", "event2/event.h", "event2/http.h" };
+// TODO maybe preamble/postamble headers?
+const char *includes[] = { "event2/buffer.h",
+                           "event2/event.h",
+                           "event2/http.h",
+                           "stdlib.h" /* for exit() */,
+                           "string.h" /* for memset() */,
+                           "unistd.h" /* for getopt() */,
+                           0 };
 
 const char *html_cb_template[] = {
 #include "html_cb.h"
+  0,
+};
+
+const char *main_template[] = {
+#include "main.h"
   0,
 };
 
@@ -171,7 +181,7 @@ main (int argc, char *argv[])
       exit (1);
     }
 
-  for (i = 0; i < INCLUDE_COUNT; i++)
+  for (i = 0; includes[i]; i++)
     {
       printf ("#include <%s>\n", includes[i]);
     }
@@ -187,6 +197,11 @@ main (int argc, char *argv[])
               cbs[i].name);
     }
   printf ("}\n");
+
+  for (i = 0; main_template[i]; i++)
+    {
+      printf ("%s\n", main_template[i]);
+    }
 
   return 0;
 }

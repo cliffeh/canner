@@ -1,0 +1,113 @@
+#define LOG(level, fmt, ...)                                                  \
+  fprintf (stderr, level ": " fmt "\n", ##__VA_ARGS__)
+
+#define DEFAULT_BIND "0.0.0.0"
+#define DEFAULT_PORT 8080
+#define DEFAULT_PORT_STR "8080"
+
+struct options
+{
+  int port;
+  int verbose;
+
+  const char *bind;
+};
+
+static void
+print_usage (FILE *out, const char *prog, int exit_code)
+{
+  fprintf (out,
+           "usage: %s [ OPTS ]\n"
+           " -p      port to bind to (default: " DEFAULT_PORT_STR ")\n"
+           " -H      address to bind (default: " DEFAULT_BIND ")\n"
+           " -v      enable verbose debugging\n"
+           " -h      print a brief help message and exit\n",
+           prog);
+  exit (exit_code);
+}
+
+static struct options
+parse_opts (int argc, char *argv[])
+{
+  struct options o;
+  int opt;
+
+  memset (&o, 0, sizeof (o));
+
+  while ((opt = getopt (argc, argv, "hp:H:v")) != -1)
+    {
+      switch (opt)
+        {
+        case 'p':
+          o.port = atoi (optarg);
+          break;
+        case 'H':
+          o.bind = optarg;
+          break;
+        case 'h':
+          print_usage (stdout, argv[0], 0);
+          break;
+        case 'v':
+          ++o.verbose;
+          break;
+        default:
+          fprintf (stderr, "unknown option: %c\n", opt);
+          print_usage (stderr, argv[0], 1);
+          break;
+        }
+    }
+
+  if (!o.bind)
+    o.bind = DEFAULT_BIND;
+  if (!o.port)
+    o.port = DEFAULT_PORT;
+
+  return o;
+}
+
+int
+main (int argc, char *argv[])
+{
+  struct event_base *base = NULL;
+  struct evhttp *http = NULL;
+  struct evhttp_bound_socket *handle = NULL;
+  struct options o = parse_opts (argc, argv);
+
+  if (o.verbose)
+    {
+      LOG ("debug", "using bind: %s", o.bind);
+      LOG ("debug", "using port: %i", o.port);
+    }
+
+  base = event_base_new ();
+  if (!base)
+    {
+      LOG ("fatal", "could not create event_base");
+      exit (1);
+    }
+
+  // TODO signal handling for reload/shutdown!
+
+  http = evhttp_new (base);
+  if (!http)
+    {
+      LOG ("fatal", "could not create evhttp");
+      exit (1);
+    }
+
+  register_html_callbacks (http);
+
+  handle = evhttp_bind_socket_with_handle (http, o.bind, o.port);
+  if (!handle)
+    {
+      LOG ("fatal", "couldn't bind to %s:%i", o.bind, o.port);
+      exit (1);
+    }
+
+  event_base_dispatch (base);
+
+  if (http)
+    evhttp_free (http);
+  if (base)
+    event_base_free (base);
+}

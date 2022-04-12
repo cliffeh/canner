@@ -56,5 +56,6 @@ Makefile
 /config.h
 
 # object files and binaries
+a.out
 can
 *.o
