@@ -1,5 +1,5 @@
 bin_PROGRAMS = can
-can_SOURCES = canner.c html_cb.h main.h
+can_SOURCES = canner.c http_cb.h main.h
 
 EXTRA_DIST = http_cb.h.in main.h.in
 
