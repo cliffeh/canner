@@ -1,5 +1,6 @@
 AC_INIT([canner], m4_esyscmd_s([cat VERSION]), [cliff.snyder@gmail.com])
-AC_CHECK_HEADERS(stdio.h stdlib.h string.h, [],
+AC_CHECK_HEADERS(dirent.h limits.h stdio.h stdlib.h string.h sys/types.h unistd.h,
+  [],
   [
     AC_MSG_ERROR([one or more required headers not found])
   ])
