@@ -3,6 +3,6 @@ dist_doc_DATA = \
 	README.md \
 	TODO.md
 
-SUBDIRS = src
+SUBDIRS = src test
 
 dist_noinst_SCRIPTS = autogen.sh

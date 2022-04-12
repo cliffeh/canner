@@ -56,6 +56,10 @@ Makefile
 /config.h
 
 # object files and binaries
+canner-*.tar.gz
 a.out
 can
 *.o
+
+# testing & logs
+test-suite.log
