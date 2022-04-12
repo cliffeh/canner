@@ -1,3 +1,7 @@
 # testing & logs
 *.log
 *.trs
+
+# generated files
+example-site
+example-site.c
