@@ -10,6 +10,15 @@
 #define MAX_CALLBACKS 4096
 #endif
 
+#define DEFAULT_MIME_TYPE "application/octet-stream"
+const char *mime_types[][2] = { { "css", "text/css" },
+                                { "htm", "text/htm" },
+                                { "html", "text/html" },
+                                { "js", "text/javascript" },
+                                { "json", "application/javascript" },
+                                { "txt", "text/plain" },
+                                0 };
+
 // TODO maybe preamble/postamble headers?
 const char *includes[] = { "event2/buffer.h",
                            "event2/event.h",
@@ -19,8 +28,8 @@ const char *includes[] = { "event2/buffer.h",
                            "unistd.h" /* for getopt() */,
                            0 };
 
-const char *html_cb_template[] = {
-#include "html_cb.h"
+const char *http_cb_template[] = {
+#include "http_cb.h"
   0,
 };
 
@@ -37,6 +46,22 @@ struct callback
 
 struct callback cbs[MAX_CALLBACKS];
 int callback_count = 0;
+
+const char *
+guess_content_type (const char *path)
+{
+  char *p;
+  int i;
+  p = strrchr (path, '.');
+  if (!p)
+    return DEFAULT_MIME_TYPE;
+  for (i = 0; mime_types[i][0]; i++)
+    {
+      if (strcmp (p + 1, mime_types[i][0]) == 0)
+        return mime_types[i][1];
+    }
+  return DEFAULT_MIME_TYPE;
+}
 
 void
 generate_callback_name (char *out, const char *path)
@@ -86,19 +111,19 @@ print_callback (const char *filename, const char *path)
 
   generate_callback_name (cbs[callback_count].name, filename);
 
-  for (i = 0; html_cb_template[i]; i++)
+  for (i = 0; http_cb_template[i]; i++)
     {
-      if ((tmp = strstr (html_cb_template[i], "CALLBACK_NAME")))
+      if ((tmp = strstr (http_cb_template[i], "CALLBACK_NAME")))
         {
           printf ("%s%.*s", cbs[callback_count].name,
-                  (int)(tmp - html_cb_template[i]), html_cb_template[i]);
+                  (int)(tmp - http_cb_template[i]), http_cb_template[i]);
           tmp += strlen ("CALLBACK_NAME");
           printf ("%s\n", tmp);
         }
-      else if ((tmp = strstr (html_cb_template[i], "CALLBACK_CONTENT")))
+      else if ((tmp = strstr (http_cb_template[i], "CALLBACK_CONTENT")))
         {
-          printf ("%.*s", (int)(tmp - html_cb_template[i]),
-                  html_cb_template[i]);
+          printf ("%.*s", (int)(tmp - http_cb_template[i]),
+                  http_cb_template[i]);
           printf ("\"");
           while ((c = fgetc (fp)) != EOF)
             {
@@ -118,9 +143,17 @@ print_callback (const char *filename, const char *path)
           tmp += strlen ("CALLBACK_CONTENT");
           printf ("%s\n", tmp);
         }
+      else if ((tmp = strstr (http_cb_template[i], "MIME_TYPE")))
+        {
+          printf ("%.*s", (int)(tmp - http_cb_template[i]),
+                  http_cb_template[i]);
+          printf ("\"%s\"", guess_content_type (path));
+          tmp += strlen ("MIME_TYPE");
+          printf ("%s\n", tmp);
+        }
       else
         {
-          printf ("%s\n", html_cb_template[i]);
+          printf ("%s\n", http_cb_template[i]);
         }
     }
 
