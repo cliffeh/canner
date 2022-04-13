@@ -6,6 +6,15 @@ TESTS = $(check_SCRIPTS)
 
 dist_noinst_SCRIPTS = $(check_SCRIPTS)
 
+STATIC_FILES = \
+	../examples/static/style/style.css \
+	../examples/static/index.html \
+	../examples/static/foo/index.html \
+	../examples/static/foo/bar.html \
+	../examples/static/auden.txt
+
+it-generates-code.log: $(STATIC_FILES)
+
 it-compiles.log: it-generates-code.log
 
 it-runs.log: it-compiles.log

@@ -127,8 +127,12 @@ print_callback (const char *filename, const char *path)
           printf ("\"");
           while ((c = fgetc (fp)) != EOF)
             {
+              // TODO probably need more thorough escaping...
               switch (c)
                 {
+                case '%':
+                  printf("%%%%");
+                  break;
                 case '"':
                   printf ("\\\"");
                   break;
