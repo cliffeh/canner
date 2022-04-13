@@ -41,10 +41,8 @@ print_usage (FILE *out, const char *prog, int exit_code)
 static struct options
 parse_opts (int argc, char *argv[])
 {
-  struct options o;
+  struct options o = { 0 };
   int opt;
-
-  memset (&o, 0, sizeof (o));
 
   o.port = DEFAULT_PORT;
 
@@ -80,7 +78,7 @@ parse_opts (int argc, char *argv[])
 static int
 display_listen_sock (struct evhttp_bound_socket *handle)
 {
-  struct sockaddr_storage ss;
+  struct sockaddr_storage ss = { 0 };
   evutil_socket_t fd;
   ev_socklen_t socklen = sizeof (ss);
   char addrbuf[128];
@@ -89,7 +87,6 @@ display_listen_sock (struct evhttp_bound_socket *handle)
   int got_port = -1;
 
   fd = evhttp_bound_socket_get_fd (handle);
-  memset (&ss, 0, sizeof (ss));
   if (getsockname (fd, (struct sockaddr *)&ss, &socklen))
     {
       log_error ("getsockname() failed");

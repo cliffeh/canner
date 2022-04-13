@@ -24,7 +24,6 @@ const char *includes[] = { "event2/buffer.h",
                            "event2/event.h",
                            "event2/http.h",
                            "stdlib.h" /* for exit() */,
-                           "string.h" /* for memset() */,
                            "unistd.h" /* for getopt() */,
                            0 };
 
