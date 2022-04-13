@@ -16,7 +16,6 @@
 
 #define DEFAULT_BIND "0.0.0.0"
 #define DEFAULT_PORT 8080
-#define DEFAULT_PORT_STR "8080"
 
 struct options
 {
@@ -31,11 +30,11 @@ print_usage (FILE *out, const char *prog, int exit_code)
 {
   fprintf (out,
            "usage: %s [ OPTS ]\n"
-           " -p      port to bind to (default: " DEFAULT_PORT_STR ")\n"
-           " -H      address to bind (default: " DEFAULT_BIND ")\n"
+           " -H      address to bind (default: %s)\n"
+           " -p      port to bind (default: %i)\n"
            " -v      enable verbose debugging\n"
            " -h      print a brief help message and exit\n",
-           prog);
+           prog, DEFAULT_BIND, DEFAULT_PORT);
   exit (exit_code);
 }
 
@@ -146,9 +145,9 @@ main (int argc, char *argv[])
   register_html_callbacks (http);
 
   log_info ("binding to %s:%i", o.bind, o.port);
-  
+
   if (!(handle = evhttp_bind_socket_with_handle (http, o.bind, o.port)))
-      log_fatal("couldn't bind to %s:%i", o.bind, o.port);
+    log_fatal ("couldn't bind to %s:%i", o.bind, o.port);
 
   display_listen_sock (handle);
 
