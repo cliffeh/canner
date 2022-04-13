@@ -6,4 +6,6 @@
 * error handling
 * improve control flow (confusing/messy atm)
 * request logging in generated site binary
-* TESTS!
+* rejigger tests to better leverage examples?
+* make sure examples get included in dist
+* implement it-listens and it-runs tests

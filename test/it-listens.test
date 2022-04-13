@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# CURL=$(command -v curl) >& /dev/null || { echo "can't find curl; skipping test..."; exit 77; }
+
+# TODO find a less fragile way to do this?
+echo "TODO: implement a test that ensures the running binary is listening/returning the right data/headers"
+exit 77
