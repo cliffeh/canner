@@ -11,8 +11,9 @@ EXAMPLES = \
 dist_doc_DATA = \
 	LICENSE \
 	README.md \
-	TODO.md \
-	$(EXAMPLES)
+	TODO.md
+
+EXTRA_DIST = $(EXAMPLES)
 
 SUBDIRS = src test
 

@@ -93,7 +93,7 @@ display_listen_sock (struct evhttp_bound_socket *handle)
   memset (&ss, 0, sizeof (ss));
   if (getsockname (fd, (struct sockaddr *)&ss, &socklen))
     {
-      perror ("getsockname() failed");
+      log_error ("getsockname() failed");
       return 1;
     }
 
@@ -109,20 +109,18 @@ display_listen_sock (struct evhttp_bound_socket *handle)
     }
   else
     {
-      LOG ("warn", "weird address family %d\n", ss.ss_family);
+      log_warn ("weird address family %d", ss.ss_family);
       return 1;
     }
 
   addr = evutil_inet_ntop (ss.ss_family, inaddr, addrbuf, sizeof (addrbuf));
   if (addr)
     {
-      LOG ("info", "listening on %s:%d", addr, got_port);
-      // evutil_snprintf (uri_root, sizeof (uri_root), "http://%s:%d", addr,
-      //                 got_port);
+      log_info ("listening on %s:%d", addr, got_port);
     }
   else
     {
-      LOG ("error", "evutil_inet_ntop failed\n");
+      log_error ("evutil_inet_ntop failed");
       return 1;
     }
 
@@ -137,39 +135,22 @@ main (int argc, char *argv[])
   struct evhttp_bound_socket *handle = NULL;
   struct options o = parse_opts (argc, argv);
 
-  base = event_base_new ();
-  if (!base)
-    {
-      LOG ("fatal", "could not create event_base");
-      exit (1);
-    }
+  if (!(base = event_base_new ()))
+    log_fatal ("could not create event_base");
 
   // TODO signal handling for reload/shutdown!
 
-  http = evhttp_new (base);
-  if (!http)
-    {
-      LOG ("fatal", "could not create evhttp");
-      exit (1);
-    }
+  if (!(http = evhttp_new (base)))
+    log_fatal ("could not create evhttp");
 
   register_html_callbacks (http);
 
-  if (o.verbose)
-    {
-      LOG ("debug", "binding to %s:%i", o.bind, o.port);
-    }
+  log_info ("binding to %s:%i", o.bind, o.port);
+  
+  if (!(handle = evhttp_bind_socket_with_handle (http, o.bind, o.port)))
+      log_fatal("couldn't bind to %s:%i", o.bind, o.port);
 
-  handle = evhttp_bind_socket_with_handle (http, o.bind, o.port);
-  if (!handle)
-    {
-      LOG ("fatal", "couldn't bind to %s:%i", o.bind, o.port);
-      exit (1);
-    }
-  if (o.verbose)
-    {
-      display_listen_sock (handle);
-    }
+  display_listen_sock (handle);
 
   event_base_dispatch (base);
 
