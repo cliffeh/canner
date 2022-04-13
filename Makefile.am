@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = subdir-objects
+
 dist_doc_DATA = \
 	LICENSE \
 	README.md \
