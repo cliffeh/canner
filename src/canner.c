@@ -207,11 +207,19 @@ generate_callbacks (const char *path)
 int
 main (int argc, char *argv[])
 {
+  char path[PATH_MAX];
   int i;
   if (argc != 2)
     {
       fprintf (stderr, "usage: %s DIR\n", argv[0]);
       exit (1);
+    }
+  snprintf (path, sizeof (path), "%s", argv[1]);
+
+  // strip trailing slashes
+  while (path[strlen (path) - 1] == '/')
+    {
+      path[strlen (path) - 1] = 0;
     }
 
   for (i = 0; includes[i]; i++)
@@ -220,7 +228,7 @@ main (int argc, char *argv[])
     }
   printf ("\n");
 
-  generate_callbacks (argv[1]);
+  generate_callbacks (path);
   printf ("\n");
 
   printf ("void register_html_callbacks (struct evhttp *http) {\n");
