@@ -1,5 +1,18 @@
+// some convenience functions for logging
 #define LOG(level, fmt, ...)                                                  \
   fprintf (stdout, level ": " fmt "\n", ##__VA_ARGS__)
+#define log_debug(fmt, ...) LOG ("debug", fmt, ##__VA_ARGS__)
+#define log_info(fmt, ...) LOG ("info", fmt, ##__VA_ARGS__)
+#define log_warn(fmt, ...) LOG ("warn", fmt, ##__VA_ARGS__)
+#define log_error(fmt, ...) LOG ("error", fmt, ##__VA_ARGS__)
+#define log_fatal(fmt, ...)                                                   \
+  do                                                                          \
+                                                                              \
+    {                                                                         \
+      LOG ("fatal", fmt, ##__VA_ARGS__);                                      \
+      exit (1);                                                               \
+    }                                                                         \
+  while (0)
 
 #define DEFAULT_BIND "0.0.0.0"
 #define DEFAULT_PORT 8080
@@ -34,7 +47,7 @@ parse_opts (int argc, char *argv[])
 
   memset (&o, 0, sizeof (o));
 
-  o.port = 0;
+  o.port = DEFAULT_PORT;
 
   while ((opt = getopt (argc, argv, "hp:H:v")) != -1)
     {
