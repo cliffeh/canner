@@ -9,3 +9,4 @@
 * rejigger tests to better leverage examples?
 * make sure examples get included in dist
 * implement it-listens and it-runs tests
+* strip trailing slashes
