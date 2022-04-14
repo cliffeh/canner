@@ -5,8 +5,7 @@ import re
 import sys
 import mimetypes
 import subprocess
-# TODO protect against requests not being available?
-import requests
+import urllib.request
 
 SITE_CMD = './example-site -H 127.0.0.1 -p 0 -v'
 SITEROOT = '../examples/static'
@@ -15,11 +14,11 @@ SITEROOT = '../examples/static'
 def test_uri(uri, filename):
     with open(filename, 'r') as f:
         file_contents = f.read()
-    r = requests.get(uri)
+    r = urllib.request.urlopen(uri)
     mimetype = mimetypes.guess_type(filename)[0]
 
-    assert r.status_code == 200, f'status code {r.status_code} != 200'
-    assert r.text == file_contents, 'file contents do not match'
+    assert r.status == 200, f'status code {r.status_code} != 200'
+    assert r.read().decode('utf-8') == file_contents, 'file contents do not match'
     assert r.headers['Content-Type'] == mimetype, f'incorrect mime type {mimetype}'
 
     return True
