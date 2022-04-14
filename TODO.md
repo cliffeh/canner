@@ -6,8 +6,6 @@
 * error handling
 * improve control flow (confusing/messy atm)
 * request logging in generated site binary
-* rejigger tests to better leverage examples?
-* make sure examples get included in dist
 * implement it-listens and it-runs tests
 * benchmarking!
 * use linked list for callbacks (remove MAX_CALLBACKS constraint)
