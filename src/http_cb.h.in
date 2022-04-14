@@ -1,7 +1,7 @@
 #include <event2/buffer.h>
 #include <event2/http.h>
 
-void
+static void
 CALLBACK_NAME (struct evhttp_request *req, void *arg)
 {
   struct evbuffer *buf = evbuffer_new ();
