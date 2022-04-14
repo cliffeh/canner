@@ -1,4 +1,4 @@
-check_SCRIPTS = it-generates-code.test it-compiles.test it-runs.test it-listens.test
+check_SCRIPTS = it-generates-code.test it-compiles.test it-serves.test
 
 TEST_EXTENSIONS = .test
 
@@ -17,9 +17,7 @@ it-generates-code.log: $(STATIC_FILES)
 
 it-compiles.log: it-generates-code.log
 
-it-runs.log: it-compiles.log
-
-it-listens.log: it-runs.log
+it-serves.log: it-compiles.log
 
 example-site: example-site.c
 	$(CC) -o $@ $< -levent

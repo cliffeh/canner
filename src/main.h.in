@@ -155,6 +155,8 @@ main (int argc, char *argv[])
     log_fatal ("couldn't bind to %s:%i", o.bind, o.port);
 
   display_listen_sock (handle);
+  fflush (stdout); // make sure logs have been flushed before we start blocking
+                   // on the event loop
 
   event_base_dispatch (base);
 

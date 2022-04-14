@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import sys
+import mimetypes
+import subprocess
+# TODO protect against requests not being available?
+import requests
+
+SITE_CMD = './example-site -H 127.0.0.1 -p 0 -v'
+SITEROOT = '../examples/static'
+
+
+def test_uri(uri, filename):
+    with open(filename, 'r') as f:
+        file_contents = f.read()
+    r = requests.get(uri)
+    mimetype = mimetypes.guess_type(filename)[0]
+
+    assert r.status_code == 200, f'status code {r.status_code} != 200'
+    assert r.text == file_contents, 'file contents do not match'
+    assert r.headers['Content-Type'] == mimetype, f'incorrect mime type {mimetype}'
+
+    return True
+
+
+def main():
+    proc = subprocess.Popen(
+        SITE_CMD.split(), stdout=subprocess.PIPE, bufsize=0, universal_newlines=True)
+
+    ROOT_URI = None
+
+    # info: listening on 127.0.0.1:34079
+    while not ROOT_URI:
+        line = proc.stdout.readline()
+        m = re.match(r'.*listening on (127\.0\.0\.1:\d+)', line)
+        if m:
+            ROOT_URI = f'http://{m.group(1)}'
+
+    print(f'using root uri: {ROOT_URI}')
+
+    rc = 0
+    for root, dirs, files in os.walk(SITEROOT, topdown=False):
+        for name in files:
+            fullpath = os.path.join(root, name)
+            relpath = fullpath.replace(SITEROOT, "")
+            uris = [f'{ROOT_URI}{relpath}']
+            # special case for index.html
+            if name == 'index.html':
+                # with trailing slash
+                uris.append(f'{ROOT_URI}{relpath[0:-len(name)]}')
+                # without trailing slash
+                uris.append(f'{ROOT_URI}{relpath[0:-(len(name)+1)]}')
+
+            for uri in uris:
+                print(f'testing {uri} => {fullpath}', end=' ')
+
+                try:
+                    test_uri(uri, fullpath)
+                    print('PASS')
+                except AssertionError as msg:
+                    print(f'FAIL ({msg})')
+                    rc = 1
+
+    # clean up after ourselves
+    proc.kill()
+
+    sys.exit(rc)
+
+
+if __name__ == '__main__':
+    main()
