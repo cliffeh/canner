@@ -5,9 +5,9 @@ void
 CALLBACK_NAME (struct evhttp_request *req, void *arg)
 {
   struct evbuffer *buf = evbuffer_new ();
-  evbuffer_add_printf (buf, CALLBACK_CONTENT);
+  evbuffer_add_printf (buf, "CALLBACK_CONTENT");
   evhttp_add_header (evhttp_request_get_output_headers (req), "Content-Type",
-                     MIME_TYPE);
+                     "MIME_TYPE");
   evhttp_send_reply (req, 200, "OK", buf);
   evbuffer_free (buf);
 }

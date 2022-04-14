@@ -112,7 +112,7 @@ print_callback (const char *cbname, const char *filename)
           tmp += strlen ("CALLBACK_NAME");
           printf ("%s\n", tmp);
         }
-      else if ((tmp = strstr (http_cb_template[i], "CALLBACK_CONTENT")))
+      else if ((tmp = strstr (http_cb_template[i], "\"CALLBACK_CONTENT\"")))
         {
           printf ("%.*s", (int)(tmp - http_cb_template[i]),
                   http_cb_template[i]);
@@ -136,15 +136,15 @@ print_callback (const char *cbname, const char *filename)
                 }
             }
           printf ("\"");
-          tmp += strlen ("CALLBACK_CONTENT");
+          tmp += strlen ("\"CALLBACK_CONTENT\"");
           printf ("%s\n", tmp);
         }
-      else if ((tmp = strstr (http_cb_template[i], "MIME_TYPE")))
+      else if ((tmp = strstr (http_cb_template[i], "\"MIME_TYPE\"")))
         {
           printf ("%.*s", (int)(tmp - http_cb_template[i]),
                   http_cb_template[i]);
           printf ("\"%s\"", guess_content_type (filename));
-          tmp += strlen ("MIME_TYPE");
+          tmp += strlen ("\"MIME_TYPE\"");
           printf ("%s\n", tmp);
         }
       else
