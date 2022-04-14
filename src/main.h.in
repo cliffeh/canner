@@ -1,3 +1,9 @@
+#include <event2/buffer.h>
+#include <event2/event.h>
+#include <event2/http.h>
+#include <stdlib.h> /* for exit */
+#include <unistd.h> /* for getopt */
+
 // some convenience functions for logging
 #define LOG(level, fmt, ...)                                                  \
   fprintf (stdout, level ": " fmt "\n", ##__VA_ARGS__)
@@ -122,6 +128,8 @@ display_listen_sock (struct evhttp_bound_socket *handle)
 
   return 0;
 }
+
+void register_html_callbacks (struct evhttp *http);
 
 int
 main (int argc, char *argv[])

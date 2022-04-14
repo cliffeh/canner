@@ -19,14 +19,6 @@ const char *mime_types[][2] = { { "css", "text/css" },
                                 { "txt", "text/plain" },
                                 0 };
 
-// TODO maybe preamble/postamble headers?
-const char *includes[] = { "event2/buffer.h",
-                           "event2/event.h",
-                           "event2/http.h",
-                           "stdlib.h" /* for exit() */,
-                           "unistd.h" /* for getopt() */,
-                           0 };
-
 const char *http_cb_template[] = {
 #include "http_cb.h"
   0,
@@ -130,7 +122,7 @@ print_callback (const char *filename, const char *path)
               switch (c)
                 {
                 case '%':
-                  printf("%%%%");
+                  printf ("%%%%");
                   break;
                 case '"':
                   printf ("\\\"");
@@ -225,11 +217,11 @@ main (int argc, char *argv[])
       path[strlen (path) - 1] = 0;
     }
 
-  for (i = 0; includes[i]; i++)
+  for (i = 0; main_template[i]; i++)
     {
-      printf ("#include <%s>\n", includes[i]);
+      printf ("%s\n", main_template[i]);
     }
-  printf ("\n");
+  printf("\n");
 
   generate_callbacks (path);
   printf ("\n");
@@ -241,11 +233,6 @@ main (int argc, char *argv[])
               cbs[i].name);
     }
   printf ("}\n");
-
-  for (i = 0; main_template[i]; i++)
-    {
-      printf ("%s\n", main_template[i]);
-    }
 
   return 0;
 }
