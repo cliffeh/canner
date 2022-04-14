@@ -10,3 +10,4 @@
 * make sure examples get included in dist
 * implement it-listens and it-runs tests
 * benchmarking!
+* use linked list for callbacks (remove MAX_CALLBACKS constraint)

@@ -87,27 +87,28 @@ generate_callback_name (char *out, const char *path)
   out[i] = 0;
 }
 
-void // TODO should probably return a value indicating success/failure
-print_callback (const char *filename, const char *path)
+int
+print_callback (const char *cbname, const char *filename)
 {
-  FILE *fp = fopen (path, "r");
+  FILE *fp = fopen (filename, "r");
   char c, *tmp;
   int i;
 
   if (!fp)
     {
       fprintf (stderr, "error: couldn't open %s\n", filename);
-      return;
+      return 0;
     }
 
-  generate_callback_name (cbs[callback_count].name, filename);
+  printf ("// from filename: %s\n", filename);
 
   for (i = 0; http_cb_template[i]; i++)
     {
+      // TODO there's probably a better way to handle string replacement
       if ((tmp = strstr (http_cb_template[i], "CALLBACK_NAME")))
         {
-          printf ("%s%.*s", cbs[callback_count].name,
-                  (int)(tmp - http_cb_template[i]), http_cb_template[i]);
+          printf ("%s%.*s", cbname, (int)(tmp - http_cb_template[i]),
+                  http_cb_template[i]);
           tmp += strlen ("CALLBACK_NAME");
           printf ("%s\n", tmp);
         }
@@ -142,7 +143,7 @@ print_callback (const char *filename, const char *path)
         {
           printf ("%.*s", (int)(tmp - http_cb_template[i]),
                   http_cb_template[i]);
-          printf ("\"%s\"", guess_content_type (path));
+          printf ("\"%s\"", guess_content_type (filename));
           tmp += strlen ("MIME_TYPE");
           printf ("%s\n", tmp);
         }
@@ -153,16 +154,24 @@ print_callback (const char *filename, const char *path)
     }
 
   fclose (fp);
+
+  return 1;
 }
 
 void
-generate_callbacks (const char *path)
+generate_callbacks (const char *rootdir, const char *relpath)
 {
   DIR *dir;
   struct dirent *entry;
+  char fullpath[PATH_MAX], subpath[PATH_MAX], filename[PATH_MAX + 256];
 
-  if (!(dir = opendir (path)))
-    return;
+  sprintf (fullpath, "%s/%s", rootdir, relpath);
+
+  if (!(dir = opendir (fullpath)))
+    {
+      fprintf (stderr, "warning: couldn't open %s\n", fullpath);
+      return;
+    }
 
   while ((entry = readdir (dir)) != NULL)
     {
@@ -170,29 +179,38 @@ generate_callbacks (const char *path)
           || strcmp (entry->d_name, "..") == 0)
         continue;
 
-      char subpath[PATH_MAX];
-      snprintf (subpath, sizeof (subpath), "%s/%s", path, entry->d_name);
+      sprintf (subpath, "%s/%s", relpath, entry->d_name);
+
       if (entry->d_type == DT_DIR)
         {
-          generate_callbacks (subpath);
+          generate_callbacks (rootdir, subpath);
         }
       else
         {
-          print_callback (subpath, subpath);
-          strncpy (cbs[callback_count].path,
-                   strchr (subpath, '/'), // strip root directory
-                   sizeof (cbs[callback_count].path));
-          callback_count++;
-          // special case for index.html
-          if (strcmp ("index.html", entry->d_name) == 0)
+          sprintf (filename, "%s/%s", fullpath, entry->d_name);
+          generate_callback_name (cbs[callback_count].name, subpath);
+          if (print_callback (cbs[callback_count].name, filename))
             {
-              strncpy (cbs[callback_count].name, cbs[callback_count - 1].name,
-                       sizeof (cbs[callback_count].name));
-              snprintf (subpath, sizeof (subpath), "%s/", path);
-              strncpy (cbs[callback_count].path,
-                       strchr (subpath, '/'), // strip root directory
-                       sizeof (cbs[callback_count].path));
+              strcpy (cbs[callback_count].path, subpath);
               callback_count++;
+
+              // special case for index.html
+              if (strcmp ("index.html", entry->d_name) == 0)
+                {
+                  strcpy (cbs[callback_count].name,
+                          cbs[callback_count - 1].name);
+                  sprintf (cbs[callback_count].path, "%s/", relpath);
+                  callback_count++;
+
+                  // prefixes without a trailing slash
+                  if (strlen (relpath) > 0)
+                    {
+                      strcpy (cbs[callback_count].name,
+                              cbs[callback_count - 1].name);
+                      strcpy (cbs[callback_count].path, relpath);
+                      callback_count++;
+                    }
+                }
             }
         }
     }
@@ -202,14 +220,14 @@ generate_callbacks (const char *path)
 int
 main (int argc, char *argv[])
 {
-  char path[PATH_MAX];
+  char path[PATH_MAX], *prefix = "";
   int i;
   if (argc != 2)
     {
       fprintf (stderr, "usage: %s DIR\n", argv[0]);
       exit (1);
     }
-  snprintf (path, sizeof (path), "%s", argv[1]);
+  sprintf (path, "%s", argv[1]);
 
   // strip trailing slashes
   while (path[strlen (path) - 1] == '/')
@@ -221,9 +239,9 @@ main (int argc, char *argv[])
     {
       printf ("%s\n", main_template[i]);
     }
-  printf("\n");
+  printf ("\n");
 
-  generate_callbacks (path);
+  generate_callbacks (path, prefix);
   printf ("\n");
 
   printf ("void register_html_callbacks (struct evhttp *http) {\n");
