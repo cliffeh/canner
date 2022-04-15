@@ -129,7 +129,7 @@ display_listen_sock (struct evhttp_bound_socket *handle)
   return 0;
 }
 
-void register_html_callbacks (struct evhttp *http);
+void register_static_http_callbacks (struct evhttp *http);
 
 int
 main (int argc, char *argv[])
@@ -147,7 +147,7 @@ main (int argc, char *argv[])
   if (!(http = evhttp_new (base)))
     log_fatal ("could not create evhttp");
 
-  register_html_callbacks (http);
+  register_static_http_callbacks (http);
 
   log_info ("binding to %s:%i", o.bind, o.port);
 

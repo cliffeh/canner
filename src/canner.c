@@ -244,7 +244,7 @@ main (int argc, char *argv[])
   generate_callbacks (path, prefix);
   printf ("\n");
 
-  printf ("void register_html_callbacks (struct evhttp *http) {\n");
+  printf ("void register_static_http_callbacks (struct evhttp *http) {\n");
   for (i = 0; i < callback_count; i++)
     {
       printf ("  evhttp_set_cb (http, \"%s\", %s, 0);\n", cbs[i].path,
