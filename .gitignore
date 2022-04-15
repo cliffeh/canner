@@ -46,7 +46,9 @@ m4/lt~obsolete.m4
 # (meta build system like autotools, 
 # can automatically generate from config.status script
 # (which is called by configure script))
-Makefile
+/Makefile
+src/Makefile
+test/Makefile
 
 # IDE files
 .vscode/
