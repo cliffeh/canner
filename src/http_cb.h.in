@@ -4,10 +4,31 @@
 static void
 CALLBACK_NAME (struct evhttp_request *req, void *arg)
 {
+  // TODO only accept GET!
+  time_t rawtime = time (0);
+
   struct evbuffer *buf = evbuffer_new ();
   evbuffer_add_printf (buf, "CALLBACK_CONTENT");
   evhttp_add_header (evhttp_request_get_output_headers (req), "Content-Type",
                      "MIME_TYPE");
   evhttp_send_reply (req, 200, "OK", buf);
   evbuffer_free (buf);
+
+  struct tm *utc = gmtime (&rawtime);
+  char timestamp[32];
+  strftime (timestamp, 32, "%d/%b/%Y:%H:%M:%S %z", utc);
+
+  char *client_ip;
+  u_short client_port;
+
+  evhttp_connection_get_peer (evhttp_request_get_connection (req), &client_ip,
+                              &client_port);
+
+  // evhttp_request_get_command
+  // evhttp_request_get_evhttp_uri
+  // evhttp_request_get_input_headers
+
+  // TODO separate access log?
+  // Common Log Format: https://en.wikipedia.org/wiki/Common_Log_Format
+  // TODO FINISH printf ("access: %s - - [%s] \"REQUEST\" 200 SIZE\n", client_ip, timestamp);
 }
