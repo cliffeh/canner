@@ -1,10 +1,10 @@
 #include <event2/buffer.h>
 #include <event2/http.h>
+#include <stdio.h> /* for printf */
 
 static void
 CALLBACK_NAME (struct evhttp_request *req, void *arg)
 {
-  // TODO only accept GET!
   time_t rawtime = time (0);
 
   struct evbuffer *buf = evbuffer_new ();
@@ -24,11 +24,17 @@ CALLBACK_NAME (struct evhttp_request *req, void *arg)
   evhttp_connection_get_peer (evhttp_request_get_connection (req), &client_ip,
                               &client_port);
 
-  // evhttp_request_get_command
-  // evhttp_request_get_evhttp_uri
+  const struct evhttp_uri *uri_info = evhttp_request_get_evhttp_uri (req);
+
   // evhttp_request_get_input_headers
 
   // TODO separate access log?
+  // TODO support user-identifier and userid?
+  // TODO support retrieving method (instead of hardcoding it)
+  // TODO protocol (e.g., HTTP/1.1) - not exposed by evhttp_uri?
+  // TODO inject response size
+  // TODO combined log format?
   // Common Log Format: https://en.wikipedia.org/wiki/Common_Log_Format
-  // TODO FINISH printf ("access: %s - - [%s] \"REQUEST\" 200 SIZE\n", client_ip, timestamp);
+  printf ("access: %s - - [%s] \"GET %s\" 200 RESPONSE_SIZE\n", client_ip, timestamp,
+          evhttp_request_get_uri (req));
 }

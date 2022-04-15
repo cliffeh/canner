@@ -17,9 +17,14 @@ def test_uri(uri, filename):
     r = urllib.request.urlopen(uri)
     mimetype = mimetypes.guess_type(filename)[0]
 
+    content = r.read()
+
     assert r.status == 200, f'status code {r.status_code} != 200'
-    assert r.read().decode('utf-8') == file_contents, 'file contents do not match'
+    assert content.decode(
+        'utf-8') == file_contents, 'file contents do not match'
     assert r.headers['Content-Type'] == mimetype, f'incorrect mime type {mimetype}'
+    assert int(r.headers['Content-Length']) == len(
+        content), f'incorrect content length {len(content)} != {r.headers["Content-Length"]}'
 
     return True
 

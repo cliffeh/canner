@@ -92,13 +92,17 @@ print_callback (const char *cbname, const char *filename)
 {
   FILE *fp = fopen (filename, "r");
   char c, *tmp;
-  int i;
+  int i, bytes_read;
 
   if (!fp)
     {
       fprintf (stderr, "error: couldn't open %s\n", filename);
       return 0;
     }
+
+  fseek (fp, 0L, SEEK_END);
+  bytes_read = ftell (fp);
+  rewind (fp);
 
   printf ("// from filename: %s\n", filename);
 
@@ -145,6 +149,14 @@ print_callback (const char *cbname, const char *filename)
                   http_cb_template[i]);
           printf ("\"%s\"", guess_content_type (filename));
           tmp += strlen ("\"MIME_TYPE\"");
+          printf ("%s\n", tmp);
+        }
+      else if (tmp = strstr (http_cb_template[i], "RESPONSE_SIZE"))
+        {
+          printf ("%.*s", (int)(tmp - http_cb_template[i]),
+                  http_cb_template[i]);
+          printf ("%i", bytes_read);
+          tmp += strlen ("RESPONSE_SIZE");
           printf ("%s\n", tmp);
         }
       else
