@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 EXAMPLES = \
-	examples/README.md \
+	examples/Makefile \
 	examples/static/style/style.css \
 	examples/static/index.html \
 	examples/static/foo/index.html \
