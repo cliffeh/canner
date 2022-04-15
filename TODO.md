@@ -8,3 +8,4 @@
 * benchmarking!
 * use linked list for callbacks (remove MAX_CALLBACKS constraint)
 * skip it-serves.test if no python >= 3.6
+* support custom 404s?
