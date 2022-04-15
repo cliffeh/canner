@@ -4,7 +4,6 @@
 * ability to produce statically-linked binaries?
   * redistribute libevent? (anything else?)
 * error handling
-* improve control flow (confusing/messy atm)
 * request logging in generated site binary
 * benchmarking!
 * use linked list for callbacks (remove MAX_CALLBACKS constraint)
