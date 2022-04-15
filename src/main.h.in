@@ -147,6 +147,9 @@ main (int argc, char *argv[])
   if (!(http = evhttp_new (base)))
     log_fatal ("could not create evhttp");
 
+  // TODO returns a 501 for unknown methods, and we probably really want a 405
+  evhttp_set_allowed_methods (http, EVHTTP_REQ_GET);
+
   register_static_http_callbacks (http);
 
   log_info ("binding to %s:%i", o.bind, o.port);
