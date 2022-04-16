@@ -11,13 +11,17 @@
 #endif
 
 #define DEFAULT_MIME_TYPE "application/octet-stream"
-const char *mime_types[][2] = { { "css", "text/css" },
-                                { "htm", "text/htm" },
-                                { "html", "text/html" },
-                                { "js", "text/javascript" },
-                                { "json", "application/javascript" },
-                                { "txt", "text/plain" },
-                                0 };
+static const struct table_entry
+{
+  const char *extension;
+  const char *content_type;
+} mime_types[] = { { "css", "text/css" },
+                   { "htm", "text/htm" },
+                   { "html", "text/html" },
+                   { "js", "text/javascript" },
+                   { "json", "application/javascript" },
+                   { "txt", "text/plain" },
+                   0 };
 
 const char *http_cb_template[] = {
 #include "http_cb.h"
@@ -46,10 +50,10 @@ guess_content_type (const char *path)
   p = strrchr (path, '.');
   if (!p)
     return DEFAULT_MIME_TYPE;
-  for (i = 0; mime_types[i][0]; i++)
+  for (i = 0; mime_types[i].extension; i++)
     {
-      if (strcmp (p + 1, mime_types[i][0]) == 0)
-        return mime_types[i][1];
+      if (strcmp (p + 1, mime_types[i].extension) == 0)
+        return mime_types[i].content_type;
     }
   return DEFAULT_MIME_TYPE;
 }
