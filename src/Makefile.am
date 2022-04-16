@@ -1,12 +1,12 @@
 bin_PROGRAMS = can
 can_SOURCES = canner.c http_cb.h main.h
 
-EXTRA_DIST = http_cb.h.in main.h.in
+EXTRA_DIST = mkh.sh http_cb.h.in main.h.in
 
 BUILT_SOURCES = http_cb.h main.h
 
 http_cb.h: http_cb.h.in
-	sed 's#\\#\\\\#g' < $< | sed 's#"#\\"#g' | awk '{print "\"" $$0 "\","}' > $@
+	./mkh.sh $< $@
 
 main.h: main.h.in
-	sed 's#\\#\\\\#g' < $< | sed 's#"#\\"#g' | awk '{print "\"" $$0 "\","}' > $@
+	./mkh.sh $< $@
