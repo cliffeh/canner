@@ -23,26 +23,24 @@ static const struct table_entry
                    { "txt", "text/plain" },
                    0 };
 
-const char *http_cb_template[] = {
+static const char *http_cb_template[] = {
 #include "http_cb.h"
   0,
 };
 
-const char *main_template[] = {
+static const char *main_template[] = {
 #include "main.h"
   0,
 };
 
-struct callback
+static int callback_count = 0;
+static struct callback
 {
   char name[PATH_MAX];
   char path[PATH_MAX];
-};
+} cbs[MAX_CALLBACKS];
 
-struct callback cbs[MAX_CALLBACKS];
-int callback_count = 0;
-
-const char *
+static const char *
 guess_content_type (const char *path)
 {
   char *p;
@@ -58,7 +56,7 @@ guess_content_type (const char *path)
   return DEFAULT_MIME_TYPE;
 }
 
-void
+static void
 generate_callback_name (char *out, const char *path)
 {
   int i, j, len;
@@ -91,7 +89,7 @@ generate_callback_name (char *out, const char *path)
   out[i] = 0;
 }
 
-int
+static int
 print_callback (const char *cbname, const char *filename)
 {
   FILE *fp = fopen (filename, "r");
@@ -174,7 +172,7 @@ print_callback (const char *cbname, const char *filename)
   return 1;
 }
 
-void
+static void
 generate_callbacks (const char *rootdir, const char *relpath)
 {
   DIR *dir;
