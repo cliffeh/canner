@@ -2,3 +2,6 @@
 site.c
 site
 site-static
+
+# autotools stuff
+.deps/

@@ -12,5 +12,5 @@ AC_SEARCH_LIBS(event_base_dispatch, event, [], [
 ])
 
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile src/Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile examples/Makefile test/Makefile])
 AC_OUTPUT
