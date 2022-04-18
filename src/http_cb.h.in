@@ -40,6 +40,6 @@ CALLBACK_NAME (struct evhttp_request *req, void *arg)
   // TODO inject response size
   // TODO combined log format?
   // Common Log Format: https://en.wikipedia.org/wiki/Common_Log_Format
-  printf ("access: %s - - [%s] \"GET %s\" 200 %i\n", client_ip, timestamp,
+  printf ("access: %s - - [%s] \"GET %s\" 200 %ld\n", client_ip, timestamp,
           evhttp_request_get_uri (req), sizeof(CALLBACK_NAME_CONTENT));
 }
