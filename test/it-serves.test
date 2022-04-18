@@ -7,7 +7,7 @@ import mimetypes
 import subprocess
 import urllib.request
 
-SITE_CMD = './example-site -H 127.0.0.1 -p 0 -v'
+SITE_CMD = '../examples/site -H 127.0.0.1 -p 0 -v'
 SITEROOT = '../examples/static'
 
 
