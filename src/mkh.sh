@@ -5,4 +5,4 @@ if test ! $# = 2; then
    exit 1
 fi
 
-sed 's,\\,\\\\,g' < "$1" | sed 's,",\\",g' | awk '{print "\"" $0 "\","}' > "$2"
+sed 's,\\,\\\\,g' < "$1" | sed 's,",\\",g' | awk '{print "\"" $0 "\\n\""} END { print "," }' > "$2"

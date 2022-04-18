@@ -2,13 +2,18 @@
 #include <event2/http.h>
 #include <stdio.h> /* for printf */
 
+// fallback that keeps syntax checkers happy
+#ifndef CALLBACK_NAME_CONTENT
+#define CALLBACK_NAME_CONTENT ""
+#endif
+
 static void
 CALLBACK_NAME (struct evhttp_request *req, void *arg)
 {
   time_t rawtime = time (0);
 
   struct evbuffer *buf = evbuffer_new ();
-  evbuffer_add_printf (buf, "CALLBACK_CONTENT");
+  evbuffer_add_printf (buf, CALLBACK_NAME_CONTENT);
   evhttp_add_header (evhttp_request_get_output_headers (req), "Content-Type",
                      "MIME_TYPE");
   evhttp_send_reply (req, 200, "OK", buf);
@@ -35,6 +40,6 @@ CALLBACK_NAME (struct evhttp_request *req, void *arg)
   // TODO inject response size
   // TODO combined log format?
   // Common Log Format: https://en.wikipedia.org/wiki/Common_Log_Format
-  printf ("access: %s - - [%s] \"GET %s\" 200 RESPONSE_SIZE\n", client_ip, timestamp,
-          evhttp_request_get_uri (req));
+  printf ("access: %s - - [%s] \"GET %s\" 200 %i\n", client_ip, timestamp,
+          evhttp_request_get_uri (req), sizeof(CALLBACK_NAME_CONTENT));
 }
