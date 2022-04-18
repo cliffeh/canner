@@ -129,7 +129,7 @@ display_listen_sock (struct evhttp_bound_socket *handle)
   return 0;
 }
 
-void register_static_http_callbacks (struct evhttp *http);
+void canner_register_callbacks (struct evhttp *http);
 
 int
 main (int argc, char *argv[])

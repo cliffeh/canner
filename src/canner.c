@@ -329,9 +329,8 @@ main (int argc, char *argv[])
   printf ("%s\n", main_template[0]);
 
   generate_callbacks (path, prefix);
-  printf ("\n");
 
-  printf ("void register_static_http_callbacks (struct evhttp *http) {\n");
+  printf ("void canner_register_callbacks (struct evhttp *http) {\n");
   for (i = 0; i < callback_count; i++)
     {
       printf ("  evhttp_set_cb (http, \"%s\", %s, 0);\n", cbs[i].path,
