@@ -153,7 +153,7 @@ print_callback (const char *cbname, const char *filename)
           tmp += strlen ("\"MIME_TYPE\"");
           printf ("%s\n", tmp);
         }
-      else if (tmp = strstr (http_cb_template[i], "RESPONSE_SIZE"))
+      else if ((tmp = strstr (http_cb_template[i], "RESPONSE_SIZE")))
         {
           printf ("%.*s", (int)(tmp - http_cb_template[i]),
                   http_cb_template[i]);
