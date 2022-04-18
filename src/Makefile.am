@@ -10,3 +10,6 @@ http_cb.h: http_cb.h.in
 
 main.h: main.h.in
 	./mkh.sh $< $@
+
+clean-local:
+	rm -f $(BUILT_SOURCES)

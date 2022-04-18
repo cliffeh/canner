@@ -10,6 +10,8 @@ STATIC_FILES = \
 bin_PROGRAMS = site
 site_SOURCES = site.c
 
+BUILT_SOURCES = site.c
+
 EXTRA_DIST = $(STATIC_FILES)
 
 # note: to generate a binary that statically links libevent you
@@ -20,3 +22,6 @@ EXTRA_DIST = $(STATIC_FILES)
 #
 site.c: $(STATIC_FILES)
 	$(CAN) $(STATIC_DIR) > $@
+
+clean-local:
+	rm -f $(BUILT_SOURCES)
