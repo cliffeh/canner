@@ -8,7 +8,7 @@ STATIC_FILES = \
 	static/auden.txt
 
 bin_PROGRAMS = site
-site_SOURCES = site.c
+nodist_site_SOURCES = site.c
 
 BUILT_SOURCES = site.c
 
@@ -23,5 +23,4 @@ EXTRA_DIST = $(STATIC_FILES)
 site.c: $(STATIC_FILES)
 	$(CAN) $(STATIC_DIR) > $@
 
-clean-local:
-	rm -f $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES)
