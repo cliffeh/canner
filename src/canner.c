@@ -335,7 +335,7 @@ main (int argc, char *argv[])
   if (access (site_h_path, R_OK) == 0)
     {
       fprintf (stderr, "%s exists; including it...\n", site_h_path);
-      printf("#include \"site.h\"\n");
+      printf("#include \"%s\"\n", site_h_path);
     }
   else
     {
