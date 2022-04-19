@@ -212,7 +212,7 @@ print_callback (const char *cbname, const char *filename)
   bytes_read = ftell (fp);
   rewind (fp);
 
-  printf ("// from filename: %s\n", filename);
+  printf ("// %s\n", filename);
   printf ("#define %s_CONTENT \\\n", cbname);
   printf ("\"");
   while ((c = fgetc (fp)) != EOF)
@@ -256,7 +256,9 @@ generate_callbacks (const char *rootdir, const char *relpath)
   struct dirent *entry;
   char fullpath[PATH_MAX], subpath[PATH_MAX], filename[PATH_MAX + 256];
 
-  sprintf (fullpath, "%s/%s", rootdir, relpath);
+  // rootdir will always have a trailing slash;
+  // relpath will never have either a leading or a trailing slash
+  sprintf (fullpath, "%s%s", rootdir, relpath);
 
   if (!(dir = opendir (fullpath)))
     {
@@ -270,7 +272,16 @@ generate_callbacks (const char *rootdir, const char *relpath)
           || strcmp (entry->d_name, "..") == 0)
         continue;
 
-      sprintf (subpath, "%s/%s", relpath, entry->d_name);
+      if (strlen (relpath) == 0)
+        {
+          sprintf (subpath, "%s", entry->d_name);
+          sprintf (filename, "%s%s", fullpath, entry->d_name);
+        }
+      else
+        {
+          sprintf (subpath, "%s/%s", relpath, entry->d_name);
+          sprintf (filename, "%s/%s", fullpath, entry->d_name);
+        }
 
       if (entry->d_type == DT_DIR)
         {
@@ -278,11 +289,10 @@ generate_callbacks (const char *rootdir, const char *relpath)
         }
       else
         {
-          sprintf (filename, "%s/%s", fullpath, entry->d_name);
           generate_callback_name (cbs[callback_count].name, subpath);
           if (print_callback (cbs[callback_count].name, filename))
             {
-              strcpy (cbs[callback_count].path, subpath);
+              sprintf(cbs[callback_count].path, "/%s", subpath);
               callback_count++;
 
               // special case for index.html
@@ -290,15 +300,15 @@ generate_callbacks (const char *rootdir, const char *relpath)
                 {
                   strcpy (cbs[callback_count].name,
                           cbs[callback_count - 1].name);
-                  sprintf (cbs[callback_count].path, "%s/", relpath);
+                  sprintf (cbs[callback_count].path, "/%s", relpath);
                   callback_count++;
 
-                  // prefixes without a trailing slash
+                  // prefixes with a trailing slash
                   if (strlen (relpath) > 0)
                     {
                       strcpy (cbs[callback_count].name,
                               cbs[callback_count - 1].name);
-                      strcpy (cbs[callback_count].path, relpath);
+                      sprintf (cbs[callback_count].path, "/%s/", relpath);
                       callback_count++;
                     }
                 }
@@ -320,10 +330,11 @@ main (int argc, char *argv[])
     }
   sprintf (path, "%s", argv[1]);
 
-  // strip trailing slashes
-  while (path[strlen (path) - 1] == '/')
+  // ensure our path has a trailing slash and is null-terminated
+  if (path[strlen (path) - 1] != '/')
     {
-      path[strlen (path) - 1] = 0;
+      path[strlen (path)] = '/';
+      path[strlen (path)] = 0;
     }
 
   printf ("%s\n", main_template[0]);
