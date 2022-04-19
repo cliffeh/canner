@@ -9,3 +9,4 @@
 * support custom 404s?
 * valgrind (memory leak testing)
 * support more content types (images?)
+* implement dynamic callbacks
