@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <stdlib.h> /* for rand() */
 
 int
 roll_dice (int result[], int rolls, int sides)
