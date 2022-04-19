@@ -292,7 +292,7 @@ generate_callbacks (const char *rootdir, const char *relpath)
           generate_callback_name (cbs[callback_count].name, subpath);
           if (print_callback (cbs[callback_count].name, filename))
             {
-              sprintf(cbs[callback_count].path, "/%s", subpath);
+              sprintf (cbs[callback_count].path, "/%s", subpath);
               callback_count++;
 
               // special case for index.html
@@ -321,15 +321,30 @@ generate_callbacks (const char *rootdir, const char *relpath)
 int
 main (int argc, char *argv[])
 {
-  char static_path[PATH_MAX], *prefix = "";
+  char static_path[PATH_MAX], *prefix = "", site_h_path[PATH_MAX];
+  FILE *fp;
   int i;
   if (argc != 2)
     {
       fprintf (stderr, "usage: %s DIR\n", argv[0]);
       exit (1);
     }
+
+  sprintf (site_h_path, "%s/site.h", argv[1]);
+
+  if (access (site_h_path, R_OK) == 0)
+    {
+      fprintf (stderr, "%s exists; including it...\n", site_h_path);
+      printf("#include \"site.h\"\n");
+    }
+  else
+    {
+      fprintf (stderr, "%s doesn't exist or isn't readable; skipping it...\n",
+               site_h_path);
+    }
+
   sprintf (static_path, "%s", argv[1]);
-  strcat(static_path, "/static/");
+  strcat (static_path, "/static/");
 
   printf ("%s\n", main_template[0]);
 
