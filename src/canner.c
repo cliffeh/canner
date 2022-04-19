@@ -7,6 +7,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#define USAGE                                                                 \
+  "%s [OPTIONS] [DIR]\n"                                                      \
+  "Options:\n"                                                                \
+  "  --help, -h  print a brief help message and exit\n"
+
 #if (__STDC_VERSION__ >= 199901L)
 #include <stdint.h>
 #endif
@@ -318,6 +323,34 @@ generate_callbacks (const char *rootdir, const char *relpath)
   closedir (dir);
 }
 
+struct options
+{
+  int verbose;
+
+  char rootdir[PATH_MAX];
+};
+
+static void
+print_usage (FILE *out, const char *prog, int code)
+{
+  fprintf (out, USAGE, prog);
+  exit (code);
+}
+
+static void
+parse_args (struct options *opts, int argc, char *argv[])
+{
+  int i;
+  for (i = 0; i < argc; i++)
+    {
+      // print help and exit
+      if (strcmp (argv[i], "--help") == 0 || strcmp (argv[i], "-h") == 0)
+        {
+          print_usage (stdout, argv[0], 0);
+        }
+    }
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -335,7 +368,7 @@ main (int argc, char *argv[])
   if (access (site_h_path, R_OK) == 0)
     {
       fprintf (stderr, "%s exists; including it...\n", site_h_path);
-      printf("#include \"%s\"\n", site_h_path);
+      printf ("#include \"%s\"\n", site_h_path);
     }
   else
     {
