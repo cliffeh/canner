@@ -1,5 +1,5 @@
 CAN = ../src/can
-STATIC_DIR = static
+SITE_DIR = .
 STATIC_FILES = \
 	static/index.html \
 	static/style/style.css \
@@ -28,6 +28,6 @@ TESTS = $(check_PROGRAMS)
 #   $(CC) -o $@ $< -Wl,-Bstatic -levent -Wl,-Bdynamic
 #
 site.c: $(STATIC_FILES)
-	$(CAN) $(STATIC_DIR) > $@
+	$(CAN) $(SITE_DIR) > $@
 
 CLEANFILES = $(BUILT_SOURCES)

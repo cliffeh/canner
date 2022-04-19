@@ -321,25 +321,19 @@ generate_callbacks (const char *rootdir, const char *relpath)
 int
 main (int argc, char *argv[])
 {
-  char path[PATH_MAX], *prefix = "";
+  char static_path[PATH_MAX], *prefix = "";
   int i;
   if (argc != 2)
     {
       fprintf (stderr, "usage: %s DIR\n", argv[0]);
       exit (1);
     }
-  sprintf (path, "%s", argv[1]);
-
-  // ensure our path has a trailing slash and is null-terminated
-  if (path[strlen (path) - 1] != '/')
-    {
-      path[strlen (path)] = '/';
-      path[strlen (path)] = 0;
-    }
+  sprintf (static_path, "%s", argv[1]);
+  strcat(static_path, "/static/");
 
   printf ("%s\n", main_template[0]);
 
-  generate_callbacks (path, prefix);
+  generate_callbacks (static_path, prefix);
 
   printf ("void canner_register_callbacks (struct evhttp *http) {\n");
   for (i = 0; i < callback_count; i++)
