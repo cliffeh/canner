@@ -1,0 +1,9 @@
+# testing & logs
+*.log
+*.trs
+
+# autotools stuff
+.deps/
+
+# generated test binaries
+test-dice

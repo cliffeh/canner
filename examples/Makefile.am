@@ -14,6 +14,13 @@ BUILT_SOURCES = site.c
 
 EXTRA_DIST = $(STATIC_FILES)
 
+AUTOMAKE_OPTIONS = subdir-objects
+
+check_PROGRAMS = test/test-dice
+test_test_dice_SOURCES = test/test-dice.c dynamic/dice.c
+
+TESTS = $(check_PROGRAMS)
+
 # note: to generate a binary that statically links libevent you
 #   can do something like the following if your compiler/linker
 #   support -Bstatic/-Bdynamic:
