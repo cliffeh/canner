@@ -19,9 +19,10 @@ main ()
       results[rolls[i] - 1]++;
     }
 
-  // TODO check for fairness
   for (i = 0; i < NSIDES; i++)
     {
+      // TODO check for fairness
+      assert (rolls[i] > 0);
       printf ("%i: %i\n", i + 1, results[i]);
     }
 }
