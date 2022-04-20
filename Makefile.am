@@ -17,7 +17,7 @@ dist_doc_DATA = \
 	README.md \
 	TODO.md
 
-SUBDIRS = examples test
+SUBDIRS = . examples test
 
 dist_noinst_SCRIPTS = autogen.sh
 
