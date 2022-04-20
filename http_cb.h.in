@@ -7,6 +7,9 @@
 #define CALLBACK_NAME_CONTENT ""
 #endif
 
+void log_access (const char *client_ip, time_t *rawtime, const char *method,
+                 const char *uri, int status, long size);
+
 static void
 CALLBACK_NAME (struct evhttp_request *req, void *arg)
 {
@@ -19,26 +22,11 @@ CALLBACK_NAME (struct evhttp_request *req, void *arg)
   evhttp_send_reply (req, 200, "OK", buf);
   evbuffer_free (buf);
 
-  struct tm *utc = gmtime (&rawtime);
-  char timestamp[32];
-  strftime (timestamp, 32, "%d/%b/%Y:%H:%M:%S %z", utc);
-
   char *client_ip;
   u_short client_port;
-
   evhttp_connection_get_peer (evhttp_request_get_connection (req), &client_ip,
                               &client_port);
 
-  const struct evhttp_uri *uri_info = evhttp_request_get_evhttp_uri (req);
-
-  // evhttp_request_get_input_headers
-
-  // TODO separate access log?
-  // TODO support user-identifier and userid?
-  // TODO support retrieving method (instead of hardcoding it)
-  // TODO protocol (e.g., HTTP/1.1) - not exposed by evhttp_uri?
-  // TODO combined log format?
-  // Common Log Format: https://en.wikipedia.org/wiki/Common_Log_Format
-  printf ("access: %s - - [%s] \"GET %s\" 200 %ld\n", client_ip, timestamp,
-          evhttp_request_get_uri (req), sizeof(CALLBACK_NAME_CONTENT));
+  log_access (client_ip, &rawtime, "GET", evhttp_request_get_uri (req), 200,
+              sizeof (CALLBACK_NAME_CONTENT));
 }

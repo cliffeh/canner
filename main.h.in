@@ -23,6 +23,24 @@
 #define DEFAULT_BIND "0.0.0.0"
 #define DEFAULT_PORT 8080
 
+// TODO separate access log?
+// TODO support user-identifier and userid?
+// TODO support retrieving method (instead of hardcoding it)
+// TODO protocol (e.g., HTTP/1.1) - not exposed by evhttp_uri?
+// TODO combined log format?
+// Common Log Format: https://en.wikipedia.org/wiki/Common_Log_Format
+void
+log_access (const char *client_ip, time_t *rawtime, const char *method,
+            const char *uri, int status, long size)
+{
+  struct tm *utc = gmtime (rawtime);
+  char timestamp[32];
+  strftime (timestamp, 32, "%d/%b/%Y:%H:%M:%S %z", utc);
+
+  printf ("access: %s - - [%s] \"%s %s\" %i %ld\n", client_ip, timestamp,
+          method, uri, status, size);
+}
+
 struct options
 {
   int port;
