@@ -1,4 +1,4 @@
-CAN = ../src/can
+CAN = ../can
 SITE_DIR = .
 STATIC_FILES = \
 	static/index.html \

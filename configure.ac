@@ -15,5 +15,5 @@ AC_SEARCH_LIBS(poptGetContext, popt, [], [
 ])
 
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile src/Makefile examples/Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile examples/Makefile test/Makefile])
 AC_OUTPUT

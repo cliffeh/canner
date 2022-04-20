@@ -1,4 +1,4 @@
-#include "../config.h"
+#include "config.h"
 #include <dirent.h>
 #include <limits.h>
 #include <popt.h>
@@ -9,64 +9,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+extern int parse_options (int argc, const char *argv[]);
+
 #if (__STDC_VERSION__ >= 199901L)
 #include <stdint.h>
 #endif
-
-#define USAGE                                                                 \
-  "%s [OPTIONS] [DIRS]\n"                                                     \
-  "Options:\n"                                                                \
-  "  --output, -o   specify an output file; use - for stdout (default: -)\n"  \
-  "Help Options:\n"                                                           \
-  "  --help, -h     print a brief help message and exit\n"                    \
-  "  --version, -V  print version information and exit\n"
-
-static void
-print_usage (FILE *out, const char *prog, int code)
-{
-  fprintf (out, USAGE, prog);
-  exit (code);
-}
-
-struct options
-{
-  int verbose;
-
-  char *outfile, *prefix, *rootdir;
-};
-
-static void
-parse_args (struct options *opts, int argc, char *argv[])
-{
-  int i;
-  for (i = 0; i < argc; i++)
-    {
-      // print help and exit
-      if (strcmp (argv[i], "--help") == 0 || strcmp (argv[i], "-h") == 0)
-        {
-          print_usage (stdout, argv[0], 0);
-        }
-      // select output file
-      else if (strcmp (argv[i], "--output") == 0
-               || strcmp (argv[i], "-o") == 0)
-        {
-          if (opts->outfile)
-            {
-              fprintf (stderr, "error: %s can only be specified once\n",
-                       argv[i]);
-              print_usage (stderr, argv[0], 1);
-            }
-          opts->outfile = argv[i++];
-        }
-      // print version and exit
-      else if (strcmp (argv[i], "--version") == 0
-               || strcmp (argv[i], "-V") == 0)
-        {
-          fprintf (stdout, "%s\n", PACKAGE_STRING);
-          exit (0);
-        }
-    }
-}
 
 #ifndef MAX_CALLBACKS
 #define MAX_CALLBACKS 4096
@@ -376,11 +323,9 @@ generate_callbacks (const char *rootdir, const char *relpath)
 }
 
 int
-main (int argc, char *argv[])
+main (int argc, const char *argv[])
 {
-  struct options opts = { 0 };
-
-  parse_args (&opts, argc, argv);
+  // parse_options (argc, argv);
 
   char static_path[PATH_MAX], *prefix = "", site_h_path[PATH_MAX];
   FILE *fp;

@@ -52,12 +52,17 @@ Makefile
 # IDE files
 .vscode/
 
-# more files to ignore
+# dependencies
 /.deps
-/config.h
 
-# object files and binaries
-canner-*.tar.gz
+# generated files
+/config.h
+/main.h
+/http_cb.h
+
+# object files, binaries, and distribution files
+/canner-*.tar.gz
+/canner-*/
 a.out
 can
 *.o
