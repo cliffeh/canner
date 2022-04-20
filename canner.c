@@ -1,15 +1,12 @@
 #include "config.h"
 #include <dirent.h>
 #include <limits.h>
-#include <popt.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-extern int parse_options (int argc, const char *argv[]);
 
 #if (__STDC_VERSION__ >= 199901L)
 #include <stdint.h>
@@ -325,9 +322,7 @@ generate_callbacks (const char *rootdir, const char *relpath)
 int
 main (int argc, const char *argv[])
 {
-  // parse_options (argc, argv);
-
-  char static_path[PATH_MAX], *prefix = "", site_h_path[PATH_MAX];
+  char path[PATH_MAX] = { 0 }, *prefix = "";
   FILE *fp;
   int i;
   if (argc != 2)
@@ -336,25 +331,17 @@ main (int argc, const char *argv[])
       exit (1);
     }
 
-  sprintf (site_h_path, "%s/site.h", argv[1]);
-
-  if (access (site_h_path, R_OK) == 0)
+  sprintf (path, "%s", argv[1]);
+  // ensure a single trailing slash
+  while (path[strlen (path) - 1] == '/')
     {
-      fprintf (stderr, "%s exists; including it...\n", site_h_path);
-      printf ("#include \"%s\"\n", site_h_path);
+      path[strlen (path) - 1] = 0;
     }
-  else
-    {
-      fprintf (stderr, "%s doesn't exist or isn't readable; skipping it...\n",
-               site_h_path);
-    }
-
-  sprintf (static_path, "%s", argv[1]);
-  strcat (static_path, "/static/");
+  path[strlen (path)] = '/';
 
   printf ("%s\n", main_template[0]);
 
-  generate_callbacks (static_path, prefix);
+  generate_callbacks (path, prefix);
 
   printf ("void canner_register_callbacks (struct evhttp *http) {\n");
   for (i = 0; i < callback_count; i++)

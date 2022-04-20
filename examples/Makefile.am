@@ -1,5 +1,5 @@
 CAN = ../can
-SITE_DIR = .
+SITE_DIR = static
 STATIC_FILES = \
 	static/index.html \
 	static/style/style.css \
@@ -8,7 +8,6 @@ STATIC_FILES = \
 	static/auden.txt
 
 bin_PROGRAMS = site
-site_SOURCES = site.h
 nodist_site_SOURCES = site.c
 
 BUILT_SOURCES = site.c
