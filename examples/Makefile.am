@@ -8,6 +8,7 @@ STATIC_FILES = \
 	static/auden.txt
 
 bin_PROGRAMS = site
+site_SOURCES = site.h
 nodist_site_SOURCES = site.c
 
 BUILT_SOURCES = site.c
@@ -27,7 +28,7 @@ TESTS = $(check_PROGRAMS)
 #
 #   $(CC) -o $@ $< -Wl,-Bstatic -levent -Wl,-Bdynamic
 #
-site.c: $(STATIC_FILES)
-	$(CAN) $(SITE_DIR) > $@
+site.c: $(STATIC_FILES) site.h
+	$(CAN) $(SITE_DIR) site.h > $@
 
 CLEANFILES = $(BUILT_SOURCES)
