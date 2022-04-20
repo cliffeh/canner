@@ -8,6 +8,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#define USAGE_ARGS "DIR [HEADERS] [-h|--help]"
+
 #if (__STDC_VERSION__ >= 199901L)
 #include <stdint.h>
 #endif
@@ -325,10 +327,20 @@ main (int argc, const char *argv[])
   char path[PATH_MAX] = { 0 }, *prefix = "";
   FILE *fp;
   int i;
-  if (argc != 2)
+
+  if (argc < 2)
     {
-      fprintf (stderr, "usage: %s DIR\n", argv[0]);
+      fprintf (stderr, "usage: %s " USAGE_ARGS "\n", argv[0]);
       exit (1);
+    }
+
+  for (i = 1; i < argc; i++)
+    {
+      if (strcmp ("--help", argv[i]) == 0 || strcmp ("-h", argv[i]) == 0)
+        {
+          fprintf (stdout, "usage: %s " USAGE_ARGS "\n", argv[0]);
+          exit (0);
+        }
     }
 
   sprintf (path, "%s", argv[1]);
@@ -338,6 +350,20 @@ main (int argc, const char *argv[])
       path[strlen (path) - 1] = 0;
     }
   path[strlen (path)] = '/';
+
+  // include any extra headers
+  for (i = 2; i < argc; i++)
+    {
+      switch (argv[i][0])
+        {
+        case '<':
+        case '"':
+          printf ("#include %s\n", argv[i]);
+          break;
+        default:
+          printf ("#include \"%s\"\n", argv[i]);
+        }
+    }
 
   printf ("%s\n", main_template[0]);
 
