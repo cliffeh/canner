@@ -17,7 +17,7 @@ EXTRA_DIST = $(STATIC_FILES)
 AUTOMAKE_OPTIONS = subdir-objects
 
 check_PROGRAMS = test/test-dice
-test_test_dice_SOURCES = test/test-dice.c dynamic/dice.c
+test_test_dice_SOURCES = test/test-dice.c dice.c
 
 TESTS = $(check_PROGRAMS)
 
