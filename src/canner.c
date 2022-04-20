@@ -1,6 +1,7 @@
 #include "../config.h"
 #include <dirent.h>
 #include <limits.h>
+#include <popt.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
