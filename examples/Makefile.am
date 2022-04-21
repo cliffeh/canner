@@ -8,7 +8,7 @@ STATIC_FILES = \
 	static/auden.txt
 
 bin_PROGRAMS = site
-site_SOURCES = site.h
+site_SOURCES = site.h api.c
 nodist_site_SOURCES = site.c
 
 BUILT_SOURCES = site.c

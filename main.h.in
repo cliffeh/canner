@@ -147,7 +147,8 @@ display_listen_sock (struct evhttp_bound_socket *handle)
   return 0;
 }
 
-void canner_register_callbacks (struct evhttp *http);
+void canner_preregister_callbacks (struct evhttp *http);
+void canner_register_static_callbacks (struct evhttp *http);
 
 int
 main (int argc, char *argv[])
@@ -168,7 +169,11 @@ main (int argc, char *argv[])
   // TODO returns a 501 for unknown methods, and we probably really want a 405
   evhttp_set_allowed_methods (http, EVHTTP_REQ_GET);
 
-  canner_register_callbacks (http);
+#ifdef CANNER_PREREGISTER_CALLBACKS
+  canner_preregister_callbacks (http);
+#endif
+
+  canner_register_static_callbacks (http);
 
   log_info ("binding to %s:%i", o.bind, o.port);
 

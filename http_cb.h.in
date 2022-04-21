@@ -15,7 +15,7 @@ CALLBACK_NAME (struct evhttp_request *req, void *arg)
 {
   time_t rawtime = time (0);
 
-  struct evbuffer *buf = evbuffer_new ();
+  struct evbuffer *buf = evhttp_request_get_output_buffer(req);
   evbuffer_add_printf (buf, CALLBACK_NAME_CONTENT);
   evhttp_add_header (evhttp_request_get_output_headers (req), "Content-Type",
                      "MIME_TYPE");

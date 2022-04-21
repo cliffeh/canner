@@ -46,7 +46,7 @@ static struct callback
 {
   char name[PATH_MAX];
   char path[PATH_MAX];
-} cbs[MAX_CALLBACKS];
+} cbs[MAX_CALLBACKS] = { 0 };
 
 // https://creativeandcritical.net/str-replace-c
 static char *
@@ -369,7 +369,7 @@ main (int argc, const char *argv[])
 
   generate_callbacks (path, prefix);
 
-  printf ("void canner_register_callbacks (struct evhttp *http) {\n");
+  printf ("void canner_register_static_callbacks (struct evhttp *http) {\n");
   for (i = 0; i < callback_count; i++)
     {
       printf ("  evhttp_set_cb (http, \"%s\", %s, 0);\n", cbs[i].path,
