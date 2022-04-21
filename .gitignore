@@ -58,7 +58,7 @@ Makefile
 # generated files
 /config.h
 /main.h
-/http_cb.h
+/static_cb.h
 
 # object files, binaries, and distribution files
 /canner-*.tar.gz

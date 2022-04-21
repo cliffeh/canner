@@ -31,8 +31,8 @@ static const struct table_entry
                    { "txt", "text/plain" },
                    0 };
 
-static const char *http_cb_template[] = {
-#include "http_cb.h"
+static const char *static_cb_template[] = {
+#include "static_cb.h"
   0,
 };
 
@@ -239,7 +239,7 @@ print_callback (const char *cbname, const char *filename)
   printf ("\"\n");
 
   // TODO there are more efficient ways to do this
-  tmp1 = repl_str (http_cb_template[0], "CALLBACK_NAME", cbname);
+  tmp1 = repl_str (static_cb_template[0], "CALLBACK_NAME", cbname);
   tmp2 = repl_str (tmp1, "MIME_TYPE", guess_content_type (filename));
 
   printf ("%s\n", tmp2);
