@@ -10,6 +10,8 @@
 
 #define USAGE_ARGS "DIR [HEADERS] [-h|--help]"
 
+static FILE *c_out;
+
 #if (__STDC_VERSION__ >= 199901L)
 #include <stdint.h>
 #endif
@@ -215,34 +217,34 @@ print_callback (const char *cbname, const char *filename)
   bytes_read = ftell (fp);
   rewind (fp);
 
-  printf ("// %s\n", filename);
-  printf ("#define %s_CONTENT \\\n", cbname);
-  printf ("\"");
+  fprintf (c_out, "// %s\n", filename);
+  fprintf (c_out, "#define %s_CONTENT \\\n", cbname);
+  fprintf (c_out, "\"");
   while ((c = fgetc (fp)) != EOF)
     {
       // TODO probably need more thorough escaping...
       switch (c)
         {
         case '%':
-          printf ("%%%%");
+          fprintf (c_out, "%%%%");
           break;
         case '"':
-          printf ("\\\"");
+          fprintf (c_out, "\\\"");
           break;
         case '\n':
-          printf ("\\n\" \\\n\"");
+          fprintf (c_out, "\\n\" \\\n\"");
           break;
         default:
-          printf ("%c", c);
+          fprintf (c_out, "%c", c);
         }
     }
-  printf ("\"\n");
+  fprintf (c_out, "\"\n");
 
   // TODO there are more efficient ways to do this
   tmp1 = repl_str (static_cb_template[0], "CALLBACK_NAME", cbname);
   tmp2 = repl_str (tmp1, "MIME_TYPE", guess_content_type (filename));
 
-  printf ("%s\n", tmp2);
+  fprintf (c_out, "%s\n", tmp2);
 
   free (tmp1);
   free (tmp2);
@@ -325,7 +327,6 @@ int
 main (int argc, const char *argv[])
 {
   char path[PATH_MAX] = { 0 }, *prefix = "";
-  FILE *fp;
   int i;
 
   if (argc < 2)
@@ -351,6 +352,9 @@ main (int argc, const char *argv[])
     }
   path[strlen (path)] = '/';
 
+  // TODO make this a parameter
+  c_out = stdout;
+
   // include any extra headers
   for (i = 2; i < argc; i++)
     {
@@ -358,24 +362,24 @@ main (int argc, const char *argv[])
         {
         case '<':
         case '"':
-          printf ("#include %s\n", argv[i]);
+          fprintf (c_out, "#include %s\n", argv[i]);
           break;
         default:
-          printf ("#include \"%s\"\n", argv[i]);
+          fprintf (c_out, "#include \"%s\"\n", argv[i]);
         }
     }
 
-  printf ("%s\n", main_template[0]);
+  fprintf (c_out, "%s\n", main_template[0]);
 
   generate_callbacks (path, prefix);
 
-  printf ("void canner_register_static_callbacks (struct evhttp *http) {\n");
+  fprintf (c_out, "void canner_register_static_callbacks (struct evhttp *http) {\n");
   for (i = 0; i < callback_count; i++)
     {
-      printf ("  evhttp_set_cb (http, \"%s\", %s, 0);\n", cbs[i].path,
+      fprintf (c_out, "  evhttp_set_cb (http, \"%s\", %s, 0);\n", cbs[i].path,
               cbs[i].name);
     }
-  printf ("}\n");
+  fprintf (c_out, "}\n");
 
   return 0;
 }
