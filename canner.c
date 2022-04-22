@@ -1,3 +1,4 @@
+#include "canner.h"
 #include "config.h"
 #include <dirent.h>
 #include <limits.h>
@@ -15,6 +16,8 @@ static FILE *c_out;
 #define MAX_CALLBACKS 4096
 #endif
 
+canner_callback cbs[MAX_CALLBACKS];
+
 static const char *static_cb_template[] = {
 #include "static_cb.h"
   0,
@@ -29,12 +32,6 @@ static const char *main_template[] = {
 void generate_callback_name (char *out, const char *path);
 const char *guess_content_type (const char *path);
 char *repl_str (const char *str, const char *from, const char *to);
-
-static struct callback
-{
-  char name[PATH_MAX];
-  char path[PATH_MAX];
-} cbs[MAX_CALLBACKS] = { 0 };
 
 int
 print_callback (FILE *out, const char *cbname, const char *filename)
