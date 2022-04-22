@@ -30,15 +30,14 @@ void generate_callback_name (char *out, const char *path);
 const char *guess_content_type (const char *path);
 char *repl_str (const char *str, const char *from, const char *to);
 
-static int callback_count = 0;
 static struct callback
 {
   char name[PATH_MAX];
   char path[PATH_MAX];
 } cbs[MAX_CALLBACKS] = { 0 };
 
-static int
-print_callback (const char *cbname, const char *filename)
+int
+print_callback (FILE *out, const char *cbname, const char *filename)
 {
   FILE *fp = fopen (filename, "r");
   char c, *tmp1, *tmp2;
@@ -54,34 +53,34 @@ print_callback (const char *cbname, const char *filename)
   bytes_read = ftell (fp);
   rewind (fp);
 
-  fprintf (c_out, "// %s\n", filename);
-  fprintf (c_out, "#define %s_CONTENT \\\n", cbname);
-  fprintf (c_out, "\"");
+  fprintf (out, "// %s\n", filename);
+  fprintf (out, "#define %s_CONTENT \\\n", cbname);
+  fprintf (out, "\"");
   while ((c = fgetc (fp)) != EOF)
     {
       // TODO probably need more thorough escaping...
       switch (c)
         {
         case '%':
-          fprintf (c_out, "%%%%");
+          fprintf (out, "%%%%");
           break;
         case '"':
-          fprintf (c_out, "\\\"");
+          fprintf (out, "\\\"");
           break;
         case '\n':
-          fprintf (c_out, "\\n\" \\\n\"");
+          fprintf (out, "\\n\" \\\n\"");
           break;
         default:
-          fprintf (c_out, "%c", c);
+          fprintf (out, "%c", c);
         }
     }
-  fprintf (c_out, "\"\n");
+  fprintf (out, "\"\n");
 
   // TODO there are more efficient ways to do this
   tmp1 = repl_str (static_cb_template[0], "CALLBACK_NAME", cbname);
   tmp2 = repl_str (tmp1, "MIME_TYPE", guess_content_type (filename));
 
-  fprintf (c_out, "%s\n", tmp2);
+  fprintf (out, "%s\n", tmp2);
 
   free (tmp1);
   free (tmp2);
@@ -91,13 +90,13 @@ print_callback (const char *cbname, const char *filename)
   return 1;
 }
 
-static void
-generate_callbacks (const char *rootdir, const char *relpath)
+int
+generate_callbacks (FILE *out, const char *rootdir, const char *relpath)
 {
   DIR *dir;
   struct dirent *entry;
   char fullpath[PATH_MAX], subpath[PATH_MAX], filename[PATH_MAX + 256];
-  int i, len;
+  int i, len, callback_count = 0;
 
   // rootdir will always have a trailing slash;
   // relpath will never have either a leading or a trailing slash
@@ -106,7 +105,7 @@ generate_callbacks (const char *rootdir, const char *relpath)
   if (!(dir = opendir (fullpath)))
     {
       fprintf (stderr, "warning: couldn't open %s\n", fullpath);
-      return;
+      return 0;
     }
 
   while ((entry = readdir (dir)) != NULL)
@@ -128,7 +127,7 @@ generate_callbacks (const char *rootdir, const char *relpath)
 
       if (entry->d_type == DT_DIR)
         {
-          generate_callbacks (rootdir, subpath);
+          callback_count += generate_callbacks (out, rootdir, subpath);
         }
       else
         {
@@ -139,14 +138,14 @@ generate_callbacks (const char *rootdir, const char *relpath)
             {
               if (strcmp (cbs[callback_count].name, cbs[i].name) == 0)
                 {
-                  len = strlen(cbs[callback_count].name);
+                  len = strlen (cbs[callback_count].name);
                   cbs[callback_count].name[len++] = '_';
                   cbs[callback_count].name[len] = 0;
                   i = 0; // start over from the beginning
                 }
             }
 
-          if (print_callback (cbs[callback_count].name, filename))
+          if (print_callback (out, cbs[callback_count].name, filename))
             {
               sprintf (cbs[callback_count].path, "/%s", subpath);
               callback_count++;
@@ -172,13 +171,15 @@ generate_callbacks (const char *rootdir, const char *relpath)
         }
     }
   closedir (dir);
+
+  return callback_count;
 }
 
 int
 main (int argc, const char *argv[])
 {
   char path[PATH_MAX] = { 0 }, *prefix = "";
-  int i;
+  int i, callback_count;
 
   if (argc < 2)
     {
@@ -222,7 +223,7 @@ main (int argc, const char *argv[])
 
   fprintf (c_out, "%s\n", main_template[0]);
 
-  generate_callbacks (path, prefix);
+  generate_callbacks (c_out, path, prefix);
 
   fprintf (c_out,
            "void canner_register_static_callbacks (struct evhttp *http) {\n");
