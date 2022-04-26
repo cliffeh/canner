@@ -31,7 +31,7 @@ main (int argc, const char *argv[])
   struct callback_entry *cb;
   char path[PATH_MAX] = { 0 }, *prefix = "";
   int i, rc;
-  FILE *c_out;
+  FILE *c_out = stdout;
 
   char *c_out_name = "-";
 
