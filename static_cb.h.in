@@ -15,12 +15,11 @@ CALLBACK_NAME (struct evhttp_request *req, void *arg)
 {
   time_t rawtime = time (0);
 
-  struct evbuffer *buf = evhttp_request_get_output_buffer(req);
+  struct evbuffer *buf = evbuffer_new();
   evbuffer_add_printf (buf, CALLBACK_NAME_CONTENT);
   evhttp_add_header (evhttp_request_get_output_headers (req), "Content-Type",
                      "MIME_TYPE");
   evhttp_send_reply (req, 200, "OK", buf);
-  evbuffer_free (buf);
 
   char *client_ip;
   u_short client_port;
@@ -29,4 +28,6 @@ CALLBACK_NAME (struct evhttp_request *req, void *arg)
 
   log_access (client_ip, &rawtime, "GET", evhttp_request_get_uri (req), 200,
               sizeof (CALLBACK_NAME_CONTENT));
+
+  evbuffer_free (buf);
 }

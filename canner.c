@@ -16,6 +16,7 @@ static FILE *c_out;
 #define MAX_CALLBACKS 4096
 #endif
 
+int callback_count = 0;
 canner_callback cbs[MAX_CALLBACKS];
 
 static const char *static_cb_template[] = {
@@ -93,7 +94,7 @@ generate_callbacks (FILE *out, const char *rootdir, const char *relpath)
   DIR *dir;
   struct dirent *entry;
   char fullpath[PATH_MAX], subpath[PATH_MAX], filename[PATH_MAX + 256];
-  int i, len, callback_count = 0;
+  int i, len;
 
   // rootdir will always have a trailing slash;
   // relpath will never have either a leading or a trailing slash
@@ -124,7 +125,7 @@ generate_callbacks (FILE *out, const char *rootdir, const char *relpath)
 
       if (entry->d_type == DT_DIR)
         {
-          callback_count += generate_callbacks (out, rootdir, subpath);
+          generate_callbacks (out, rootdir, subpath);
         }
       else
         {
@@ -176,7 +177,7 @@ int
 main (int argc, const char *argv[])
 {
   char path[PATH_MAX] = { 0 }, *prefix = "";
-  int i, callback_count;
+  int i;
 
   if (argc < 2)
     {
