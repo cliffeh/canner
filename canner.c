@@ -9,19 +9,18 @@
 
 #define USAGE_ARGS "DIR [HEADERS] [-h|--help]"
 
-struct callback_entry
-{
-  char name[PATH_MAX];
-  char path[PATH_MAX];
-  TAILQ_ENTRY (callback_entry) entries;
-};
-
 static const char *main_template[] = {
 #include "main.h"
   0,
 };
 
 // in callbacks.c
+struct callback_entry
+{
+  char name[PATH_MAX];
+  char path[PATH_MAX];
+  TAILQ_ENTRY (callback_entry) entries;
+};
 extern TAILQ_HEAD (, callback_entry) callbacks_head;
 void generate_callbacks (FILE *out, const char *rootdir, const char *relpath);
 
@@ -33,8 +32,6 @@ main (int argc, const char *argv[])
   int i;
   // TODO make this a parameter
   FILE *c_out = stdout;
-
-  TAILQ_INIT (&callbacks_head);
 
   if (argc < 2)
     {
@@ -75,6 +72,7 @@ main (int argc, const char *argv[])
 
   fprintf (c_out, "%s\n", main_template[0]);
 
+  TAILQ_INIT (&callbacks_head);
   generate_callbacks (c_out, path, prefix);
 
   fprintf (c_out,
