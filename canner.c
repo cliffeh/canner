@@ -1,10 +1,10 @@
-#include "canner.h"
 #include "config.h"
 #include <dirent.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/queue.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -12,12 +12,14 @@
 
 static FILE *c_out;
 
-#ifndef MAX_CALLBACKS
-#define MAX_CALLBACKS 4096
-#endif
+struct callback_entry
+{
+  char name[PATH_MAX];
+  char path[PATH_MAX];
+  TAILQ_ENTRY (callback_entry) entries;
+};
 
-int callback_count = 0;
-canner_callback cbs[MAX_CALLBACKS];
+TAILQ_HEAD (, callback_entry) callbacks_head;
 
 static const char *static_cb_template[] = {
 #include "static_cb.h"
@@ -88,13 +90,13 @@ print_callback (FILE *out, const char *cbname, const char *filename)
   return 1;
 }
 
-int
+void
 generate_callbacks (FILE *out, const char *rootdir, const char *relpath)
 {
   DIR *dir;
-  struct dirent *entry;
+  struct dirent *direntry;
   char fullpath[PATH_MAX], subpath[PATH_MAX], filename[PATH_MAX + 256];
-  int i, len;
+  int i, len, matches;
 
   // rootdir will always have a trailing slash;
   // relpath will never have either a leading or a trailing slash
@@ -103,81 +105,92 @@ generate_callbacks (FILE *out, const char *rootdir, const char *relpath)
   if (!(dir = opendir (fullpath)))
     {
       fprintf (stderr, "warning: couldn't open %s\n", fullpath);
-      return 0;
+      return;
     }
 
-  while ((entry = readdir (dir)) != NULL)
+  while ((direntry = readdir (dir)) != NULL)
     {
-      if (strcmp (entry->d_name, ".") == 0
-          || strcmp (entry->d_name, "..") == 0)
+      if (strcmp (direntry->d_name, ".") == 0
+          || strcmp (direntry->d_name, "..") == 0)
         continue;
 
       if (strlen (relpath) == 0)
         {
-          sprintf (subpath, "%s", entry->d_name);
-          sprintf (filename, "%s%s", fullpath, entry->d_name);
+          sprintf (subpath, "%s", direntry->d_name);
+          sprintf (filename, "%s%s", fullpath, direntry->d_name);
         }
       else
         {
-          sprintf (subpath, "%s/%s", relpath, entry->d_name);
-          sprintf (filename, "%s/%s", fullpath, entry->d_name);
+          sprintf (subpath, "%s/%s", relpath, direntry->d_name);
+          sprintf (filename, "%s/%s", fullpath, direntry->d_name);
         }
 
-      if (entry->d_type == DT_DIR)
+      if (direntry->d_type == DT_DIR)
         {
           generate_callbacks (out, rootdir, subpath);
         }
       else
         {
-          generate_callback_name (cbs[callback_count].name, subpath);
+          struct callback_entry *cb
+              = calloc (1, sizeof (struct callback_entry)),
+              *tmp;
+          generate_callback_name (cb->name, subpath);
 
-          // ensure a unique name by appending underscores
-          for (i = 0; i < callback_count; i++)
+          do
             {
-              if (strcmp (cbs[callback_count].name, cbs[i].name) == 0)
-                {
-                  len = strlen (cbs[callback_count].name);
-                  cbs[callback_count].name[len++] = '_';
-                  cbs[callback_count].name[len] = 0;
-                  i = 0; // start over from the beginning
-                }
+              matches = 0;
+              // ensure a unique name by appending underscores
+              TAILQ_FOREACH (tmp, &callbacks_head, entries)
+              {
+                if (strcmp (tmp->name, cb->name) == 0)
+                  {
+                    len = strlen (cb->name);
+                    cb->name[len++] = '_';
+                    cb->name[len] = 0;
+                    // need to walk the list again and ensure our new name
+                    // isn't duplicated
+                    matches = 1;
+                  }
+              }
             }
+          while (matches != 0);
 
-          if (print_callback (out, cbs[callback_count].name, filename))
+          if (print_callback (out, cb->name, filename))
             {
-              sprintf (cbs[callback_count].path, "/%s", subpath);
-              callback_count++;
+              sprintf (cb->path, "/%s", subpath);
+              TAILQ_INSERT_TAIL (&callbacks_head, cb, entries);
 
               // special case for index.html
-              if (strcmp ("index.html", entry->d_name) == 0)
+              if (strcmp ("index.html", direntry->d_name) == 0)
                 {
-                  strcpy (cbs[callback_count].name,
-                          cbs[callback_count - 1].name);
-                  sprintf (cbs[callback_count].path, "/%s", relpath);
-                  callback_count++;
+                  tmp = calloc (1, sizeof (struct callback_entry));
+                  strcpy (tmp->name, cb->name);
+                  sprintf (tmp->path, "/%s", relpath);
+                  TAILQ_INSERT_TAIL (&callbacks_head, tmp, entries);
 
                   // prefixes with a trailing slash
                   if (strlen (relpath) > 0)
                     {
-                      strcpy (cbs[callback_count].name,
-                              cbs[callback_count - 1].name);
-                      sprintf (cbs[callback_count].path, "/%s/", relpath);
-                      callback_count++;
+                      tmp = calloc (1, sizeof (struct callback_entry));
+                      strcpy (tmp->name, cb->name);
+                      sprintf (tmp->path, "/%s/", relpath);
+                      TAILQ_INSERT_TAIL (&callbacks_head, tmp, entries);
                     }
                 }
             }
         }
     }
   closedir (dir);
-
-  return callback_count;
 }
 
 int
 main (int argc, const char *argv[])
 {
+  struct callback_entry *cb;
   char path[PATH_MAX] = { 0 }, *prefix = "";
   int i;
+
+  TAILQ_INIT (&callbacks_head);
 
   if (argc < 2)
     {
@@ -225,10 +238,13 @@ main (int argc, const char *argv[])
 
   fprintf (c_out,
            "void canner_register_static_callbacks (struct evhttp *http) {\n");
-  for (i = 0; i < callback_count; i++)
+
+  while ((cb = TAILQ_FIRST (&callbacks_head)))
     {
-      fprintf (c_out, "  evhttp_set_cb (http, \"%s\", %s, 0);\n", cbs[i].path,
-               cbs[i].name);
+      TAILQ_REMOVE (&callbacks_head, cb, entries);
+      fprintf (c_out, "  evhttp_set_cb (http, \"%s\", %s, 0);\n", cb->path,
+               cb->name);
+      free (cb);
     }
   fprintf (c_out, "}\n");
 

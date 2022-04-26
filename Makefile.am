@@ -1,5 +1,5 @@
 bin_PROGRAMS = can
-can_SOURCES = canner.c canner.h util.c
+can_SOURCES = canner.c util.c
 nodist_can_SOURCES = static_cb.h main.h
 
 EXTRA_DIST = mkh.sh static_cb.h.in main.h.in
