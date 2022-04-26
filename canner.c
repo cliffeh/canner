@@ -1,5 +1,6 @@
 #include "config.h"
 #include <limits.h>
+#include <popt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,9 +30,36 @@ main (int argc, const char *argv[])
 {
   struct callback_entry *cb;
   char path[PATH_MAX] = { 0 }, *prefix = "";
-  int i;
-  // TODO make this a parameter
-  FILE *c_out = stdout;
+  int i, rc;
+  FILE *c_out;
+
+  char *c_out_name = "-";
+
+  // poptContext optCon;
+  // struct poptOption options[]
+  //     = { /* longName, shortName, argInfo, arg, val, descrip, argDescript */
+  //         { "outfile", 'o', POPT_ARG_STRING | POPT_ARGFLAG_SHOW_DEFAULT,
+  //           &c_out_name, 'o', "specify output file name", "FILE" },
+  //         POPT_AUTOHELP POPT_TABLEEND
+  //       };
+
+  // optCon = poptGetContext (0, argc, argv, options, 0);
+  // while ((rc = poptGetNextOpt (optCon)) > 0)
+  //   {
+  //     // printf ("option: %i\n", rc);
+  //   }
+
+  // if (rc != -1)
+  //   {
+  //     fprintf (stderr, "error: %s: %s\n",
+  //              poptBadOption (optCon, POPT_BADOPTION_NOALIAS),
+  //              poptStrerror (rc));
+  //     poptPrintHelp (optCon, stderr, 0);
+  //     poptFreeContext (optCon);
+  //     exit (1);
+  //   }
+
+  // printf ("outname: %s\n", c_out_name);
 
   if (argc < 2)
     {
@@ -76,7 +104,7 @@ main (int argc, const char *argv[])
   generate_callbacks (c_out, path, prefix);
 
   fprintf (c_out,
-           "void canner_register_static_callbacks (struct evhttp *http) {\n");
+           "void canner_register_static_callbacks (struct evhttp *http)\n{");
 
   while ((cb = TAILQ_FIRST (&callbacks_head)))
     {
