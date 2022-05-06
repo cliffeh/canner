@@ -22,18 +22,17 @@ struct callback_entry
   TAILQ_ENTRY (callback_entry) entries;
 };
 extern TAILQ_HEAD (, callback_entry) callbacks_head;
-void generate_callbacks (FILE *out, const char *rootdir, const char *relpath);
+extern void generate_callbacks (FILE *out, const char *rootdir,
+                                const char *relpath);
 
-int
-main (int argc, const char *argv[])
+static char path[PATH_MAX] = { 0 };
+static char *c_out_name;
+
+static int
+parse_options (int argc, const char *argv[])
 {
-  struct callback_entry *cb;
-  char path[PATH_MAX] = { 0 }, *prefix = "";
-  const char *dir;
-  int i, rc;
-  FILE *c_out = stdout;
-
-  char *c_out_name = "-";
+  int rc;
+  const char *dirname;
 
   poptContext optCon;
   struct poptOption options[]
@@ -57,26 +56,43 @@ main (int argc, const char *argv[])
                poptStrerror (rc));
       poptPrintHelp (optCon, stderr, 0);
       poptFreeContext (optCon);
-      exit (1);
+      return 1;
     }
 
-  dir = poptGetArg (optCon);
-  if (!dir || poptGetArg (optCon))
+  dirname = poptGetArg (optCon);
+  if (!dirname || poptGetArg (optCon))
     {
       // TODO allow multiple directories to be passed in?
       fprintf (stderr, "error: exactly one directory name must be provided\n");
       poptPrintHelp (optCon, stderr, 0);
       poptFreeContext (optCon);
-      exit (1);
+      return 1;
     }
 
-  sprintf (path, "%s", dir);
+  snprintf (path, sizeof (path), "%s", dirname);
   // ensure a single trailing slash
   while (path[strlen (path) - 1] == '/')
     {
       path[strlen (path) - 1] = 0;
     }
   path[strlen (path)] = '/';
+
+  return 0;
+}
+
+int
+main (int argc, const char *argv[])
+{
+  struct callback_entry *cb;
+  char *prefix = "";
+  const char *dir;
+  int i, rc;
+  FILE *c_out = stdout;
+
+  c_out_name = "-";
+
+  if (parse_options (argc, argv) != 0)
+    exit (1);
 
   c_out = (strcmp (c_out_name, "-") == 0) ? stdout : fopen (c_out_name, "w");
   if (!c_out)
@@ -102,6 +118,9 @@ main (int argc, const char *argv[])
       free (cb);
     }
   fprintf (c_out, "}\n");
+
+  // cleanup
+  fclose (c_out);
 
   return 0;
 }
