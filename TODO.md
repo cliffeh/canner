@@ -1,8 +1,7 @@
-* options/args
-  * specify output file (-o)
+* add'l options/args
 * better escape handling in templates
 * error handling
-* request logging in generated site binary
+* improve request logging in generated site binary
 * benchmarking!
 * skip it-serves.test if no python >= 3.6
 * support custom 404s?
