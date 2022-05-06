@@ -25,21 +25,30 @@ extern TAILQ_HEAD (, callback_entry) callbacks_head;
 extern void generate_callbacks (FILE *out, const char *rootdir,
                                 const char *relpath);
 
+#ifndef DEFAULT_HEADER_NAME
+#define DEFAULT_HEADER_NAME "site.h"
+#endif
+
 static char path[PATH_MAX] = { 0 };
-static FILE *c_out;
+static FILE *c_out, *h_out;
 
 static int
 parse_options (int argc, const char *argv[])
 {
   int rc;
   const char *dirname;
-  char *c_out_filename;
+  char *c_out_filename = "-", *h_out_filename;
 
   poptContext optCon;
   struct poptOption options[]
       = { /* longName, shortName, argInfo, arg, val, descrip, argDescript */
-          { "outfile", 'o', POPT_ARG_STRING, &c_out_filename, 'o',
-            "specify output file name (default: \"-\")", "FILE" },
+          { "outfile", 'o', POPT_ARG_STRING | POPT_ARGFLAG_SHOW_DEFAULT,
+            &c_out_filename, 'o', "specify output file name", "FILE" },
+          { "header", 'H', POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL,
+            &h_out_filename, 'H',
+            "also generate a C header file (filename defaults to "
+            "\"" DEFAULT_HEADER_NAME "\" if FILE not specified)",
+            "FILE" },
           POPT_AUTOHELP POPT_TABLEEND
         };
 
@@ -48,6 +57,7 @@ parse_options (int argc, const char *argv[])
 
   while ((rc = poptGetNextOpt (optCon)) > 0)
     {
+      // TODO free args that are specified multiple times?
     }
 
   if (rc != -1)
@@ -85,7 +95,17 @@ parse_options (int argc, const char *argv[])
     {
       fprintf (stderr, "error: unable to open output file: %s (%s)\n",
                c_out_filename, strerror (errno));
-      exit (1);
+      return 1;
+    }
+
+  if (h_out_filename)
+    {
+      if (!(h_out = fopen (h_out_filename, "w")))
+        {
+          fprintf (stderr, "error: unable to open header file: %s (%s)\n",
+                   h_out_filename, strerror (errno));
+        }
+      return 1;
     }
 
   return 0;
@@ -121,6 +141,8 @@ main (int argc, const char *argv[])
 
   // cleanup
   fclose (c_out);
+  if (h_out)
+    fclose (h_out);
 
   return 0;
 }
