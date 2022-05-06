@@ -28,7 +28,7 @@ TESTS = $(check_PROGRAMS)
 #
 #   $(CC) -o $@ $< -Wl,-Bstatic -levent -Wl,-Bdynamic
 #
-site.c: $(STATIC_FILES) site.h
-	$(CAN) $(SITE_DIR) site.h > $@
+site.c: $(STATIC_FILES)
+	$(CAN) $(SITE_DIR) -o $@
 
 CLEANFILES = $(BUILT_SOURCES)
