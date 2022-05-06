@@ -108,7 +108,7 @@ main (int argc, const char *argv[])
   generate_callbacks (c_out, path, prefix);
 
   fprintf (c_out,
-           "void canner_register_static_callbacks (struct evhttp *http)\n{");
+           "void canner_register_static_callbacks (struct evhttp *http)\n{\n");
 
   while ((cb = TAILQ_FIRST (&callbacks_head)))
     {
