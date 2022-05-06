@@ -26,19 +26,20 @@ extern void generate_callbacks (FILE *out, const char *rootdir,
                                 const char *relpath);
 
 static char path[PATH_MAX] = { 0 };
-static char *c_out_name;
+static FILE *c_out;
 
 static int
 parse_options (int argc, const char *argv[])
 {
   int rc;
   const char *dirname;
+  char *c_out_filename;
 
   poptContext optCon;
   struct poptOption options[]
       = { /* longName, shortName, argInfo, arg, val, descrip, argDescript */
-          { "outfile", 'o', POPT_ARG_STRING | POPT_ARGFLAG_SHOW_DEFAULT,
-            &c_out_name, 'o', "specify output file name", "FILE" },
+          { "outfile", 'o', POPT_ARG_STRING, &c_out_filename, 'o',
+            "specify output file name (default: \"-\")", "FILE" },
           POPT_AUTOHELP POPT_TABLEEND
         };
 
@@ -77,6 +78,16 @@ parse_options (int argc, const char *argv[])
     }
   path[strlen (path)] = '/';
 
+  c_out = (!c_out_filename || (strcmp (c_out_filename, "-") == 0))
+              ? stdout
+              : fopen (c_out_filename, "w");
+  if (!c_out)
+    {
+      fprintf (stderr, "error: unable to open output file: %s (%s)\n",
+               c_out_filename, strerror (errno));
+      exit (1);
+    }
+
   return 0;
 }
 
@@ -87,20 +98,9 @@ main (int argc, const char *argv[])
   char *prefix = "";
   const char *dir;
   int i, rc;
-  FILE *c_out = stdout;
-
-  c_out_name = "-";
 
   if (parse_options (argc, argv) != 0)
     exit (1);
-
-  c_out = (strcmp (c_out_name, "-") == 0) ? stdout : fopen (c_out_name, "w");
-  if (!c_out)
-    {
-      fprintf (stderr, "error: unable to open output file: %s (%s)\n",
-               c_out_name, strerror (errno));
-      exit (1);
-    }
 
   fprintf (c_out, "%s\n", main_template[0]);
 
