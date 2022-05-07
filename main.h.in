@@ -20,8 +20,12 @@
     }                                                                         \
   while (0)
 
+#ifndef DEFAULT_BIND
 #define DEFAULT_BIND "0.0.0.0"
+#endif
+#ifndef DEFAULT_PORT
 #define DEFAULT_PORT 8080
+#endif
 
 // TODO separate access log?
 // TODO support user-identifier and userid?
