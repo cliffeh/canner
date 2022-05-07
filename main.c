@@ -62,7 +62,15 @@ parse_options (int argc, const char *argv[])
 
   while ((rc = poptGetNextOpt (optCon)) > 0)
     {
-      // TODO free args that are specified multiple times?
+      switch (rc)
+        {
+        case 'H':
+          {
+            if (!h_out_filename)
+              h_out_filename = DEFAULT_HEADER_NAME;
+          }
+          break;
+        }
     }
 
   if (rc != -1)
@@ -109,8 +117,8 @@ parse_options (int argc, const char *argv[])
         {
           fprintf (stderr, "error: unable to open header file: %s (%s)\n",
                    h_out_filename, strerror (errno));
+          return 1;
         }
-      return 1;
     }
 
   return 0;

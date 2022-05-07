@@ -1,5 +1,6 @@
 #include "site.h"
 
+#include <time.h>
 #include <stdio.h> /* remove me */
 
 #define DICE_MAX_ROLLS 20

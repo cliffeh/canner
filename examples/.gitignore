@@ -1,5 +1,6 @@
 # generated sources & binaries
 site.c
+site.h
 site
 site-static
 
