@@ -9,6 +9,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+static const char *site_h_template[] = {
+#include "site.h"
+  0,
+};
+
 static const char *main_template[] = {
 #include "main.h"
   0,
@@ -30,6 +35,7 @@ extern void generate_callbacks (FILE *out, const char *rootdir,
 #endif
 
 static char path[PATH_MAX] = { 0 };
+static char *c_out_filename = "-", *h_out_filename;
 static FILE *c_out, *h_out;
 
 static int
@@ -37,7 +43,6 @@ parse_options (int argc, const char *argv[])
 {
   int rc;
   const char *dirname;
-  char *c_out_filename = "-", *h_out_filename;
 
   poptContext optCon;
   struct poptOption options[]
@@ -121,6 +126,16 @@ main (int argc, const char *argv[])
 
   if (parse_options (argc, argv) != 0)
     exit (1);
+
+  if (h_out) // we're meant to be writing a separate header file
+    {
+      fprintf (h_out, "%s\n", site_h_template[0]);
+      fprintf (c_out, "#include \"%s\"\n\n", h_out_filename);
+    }
+  else // we'll just put all the header stuff directly into our C file
+    {
+      fprintf (c_out, "%s\n", site_h_template[0]);
+    }
 
   fprintf (c_out, "%s\n", main_template[0]);
 

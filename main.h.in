@@ -1,32 +1,3 @@
-#include <event2/buffer.h>
-#include <event2/event.h>
-#include <event2/http.h>
-#include <stdlib.h> /* for exit */
-#include <unistd.h> /* for getopt */
-
-// some convenience functions for logging
-#define LOG(level, fmt, ...)                                                  \
-  fprintf (stdout, level ": " fmt "\n", ##__VA_ARGS__)
-#define log_debug(fmt, ...) LOG ("debug", fmt, ##__VA_ARGS__)
-#define log_info(fmt, ...) LOG ("info", fmt, ##__VA_ARGS__)
-#define log_warn(fmt, ...) LOG ("warn", fmt, ##__VA_ARGS__)
-#define log_error(fmt, ...) LOG ("error", fmt, ##__VA_ARGS__)
-#define log_fatal(fmt, ...)                                                   \
-  do                                                                          \
-                                                                              \
-    {                                                                         \
-      LOG ("fatal", fmt, ##__VA_ARGS__);                                      \
-      exit (1);                                                               \
-    }                                                                         \
-  while (0)
-
-#ifndef DEFAULT_BIND
-#define DEFAULT_BIND "0.0.0.0"
-#endif
-#ifndef DEFAULT_PORT
-#define DEFAULT_PORT 8080
-#endif
-
 // TODO separate access log?
 // TODO support user-identifier and userid?
 // TODO support retrieving method (instead of hardcoding it)

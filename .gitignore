@@ -59,6 +59,7 @@ Makefile
 # generated files
 /config.h
 /main.h
+/site.h
 /static_cb.h
 
 # object files, binaries, and distribution files
