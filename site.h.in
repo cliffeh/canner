@@ -7,6 +7,13 @@
 #include <stdlib.h> /* for exit */
 #include <unistd.h> /* for getopt */
 
+#ifndef DEFAULT_BIND
+#define DEFAULT_BIND "0.0.0.0"
+#endif
+#ifndef DEFAULT_PORT
+#define DEFAULT_PORT 8080
+#endif
+
 // some convenience functions for logging
 #define LOG(level, fmt, ...)                                                  \
   fprintf (stdout, level ": " fmt "\n", ##__VA_ARGS__)
@@ -23,11 +30,9 @@
     }                                                                         \
   while (0)
 
-#ifndef DEFAULT_BIND
-#define DEFAULT_BIND "0.0.0.0"
-#endif
-#ifndef DEFAULT_PORT
-#define DEFAULT_PORT 8080
-#endif
+void log_access (const char *client_ip, time_t *rawtime, const char *method,
+                 const char *uri, int status, long size);
+
+void canner_register_static_callbacks (struct evhttp *http);
 
 #endif
