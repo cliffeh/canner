@@ -15,7 +15,7 @@ struct callback_entry
 TAILQ_HEAD (, callback_entry) callbacks_head;
 
 static const char *static_cb_template[] = {
-#include "static_cb.h"
+#include "static_cb_template.h"
   0,
 };
 

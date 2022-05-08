@@ -10,12 +10,12 @@
 #include <unistd.h>
 
 static const char *site_h_template[] = {
-#include "site.h"
+#include "site_template.h"
   0,
 };
 
 static const char *main_template[] = {
-#include "main.h"
+#include "main_template.h"
   0,
 };
 

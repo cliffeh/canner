@@ -1,18 +1,18 @@
 bin_PROGRAMS = can
 can_SOURCES = callbacks.c main.c util.c
-nodist_can_SOURCES = main.h site.h static_cb.h
+nodist_can_SOURCES = main_template.h site_template.h static_cb_template.h
 
-EXTRA_DIST = mkh.sh main.h.in site.h.in static_cb.h.in
+EXTRA_DIST = mkh.sh main_template.in site_template.in static_cb_template.in
 
-BUILT_SOURCES = site.h static_cb.h main.h
+BUILT_SOURCES = main_template.h site_template.h static_cb_template.h
 
-main.h: main.h.in
+main_template.h: main_template.in
 	$(srcdir)/mkh.sh $< $@
 
-site.h: site.h.in
+site_template.h: site_template.in
 	$(srcdir)/mkh.sh $< $@
 
-static_cb.h: static_cb.h.in
+static_cb_template.h: static_cb_template.in
 	$(srcdir)/mkh.sh $< $@
 
 dist_doc_DATA = \
