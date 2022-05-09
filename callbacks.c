@@ -79,7 +79,8 @@ print_callback (FILE *out, const char *cbname, const char *filename)
 }
 
 void
-generate_callbacks (FILE *out, const char *rootdir, const char *relpath)
+generate_callbacks (FILE *out, const char *rootdir, const char *relpath,
+                    const char *prefix)
 {
   DIR *dir;
   struct dirent *direntry;
@@ -115,7 +116,7 @@ generate_callbacks (FILE *out, const char *rootdir, const char *relpath)
 
       if (direntry->d_type == DT_DIR)
         {
-          generate_callbacks (out, rootdir, subpath);
+          generate_callbacks (out, rootdir, subpath, prefix);
         }
       else
         {
@@ -145,7 +146,7 @@ generate_callbacks (FILE *out, const char *rootdir, const char *relpath)
 
           if (print_callback (out, cb->name, filename))
             {
-              sprintf (cb->path, "/%s", subpath);
+              sprintf (cb->path, "%s/%s", prefix, subpath);
               TAILQ_INSERT_TAIL (&callbacks_head, cb, entries);
 
               // special case for index.html
@@ -153,16 +154,36 @@ generate_callbacks (FILE *out, const char *rootdir, const char *relpath)
                 {
                   tmp = calloc (1, sizeof (struct callback_entry));
                   strcpy (tmp->name, cb->name);
-                  sprintf (tmp->path, "/%s", relpath);
+                  sprintf (tmp->path, "%s/%s", prefix, relpath);
                   TAILQ_INSERT_TAIL (&callbacks_head, tmp, entries);
 
-                  // prefixes with a trailing slash
-                  if (strlen (relpath) > 0)
+                  if (strlen (prefix) > 0)
                     {
-                      tmp = calloc (1, sizeof (struct callback_entry));
-                      strcpy (tmp->name, cb->name);
-                      sprintf (tmp->path, "/%s/", relpath);
-                      TAILQ_INSERT_TAIL (&callbacks_head, tmp, entries);
+                      if (strlen (relpath) == 0)
+                        { // just prefix with no trailing slash
+                          tmp = calloc (1, sizeof (struct callback_entry));
+                          strcpy (tmp->name, cb->name);
+                          sprintf (tmp->path, "%s", prefix);
+                          TAILQ_INSERT_TAIL (&callbacks_head, tmp, entries);
+                        }
+                      else
+                        { // prefix and relpath with trailing slash
+                          tmp = calloc (1, sizeof (struct callback_entry));
+                          strcpy (tmp->name, cb->name);
+                          sprintf (tmp->path, "%s/%s/", prefix, relpath);
+                          TAILQ_INSERT_TAIL (&callbacks_head, tmp, entries);
+                        }
+                    }
+                  else
+                    {
+                      if (strlen (relpath) > 0)
+                        {
+                          // just relpath with trailing slash
+                          tmp = calloc (1, sizeof (struct callback_entry));
+                          strcpy (tmp->name, cb->name);
+                          sprintf (tmp->path, "/%s/", relpath);
+                          TAILQ_INSERT_TAIL (&callbacks_head, tmp, entries);
+                        }
                     }
                 }
             }

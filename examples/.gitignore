@@ -2,7 +2,9 @@
 site.c
 site.h
 site
-site-static
+site-with-prefix.c
+site-with-prefix.h
+site-with-prefix
 
 # autotools stuff
 .deps/

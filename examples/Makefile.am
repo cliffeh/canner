@@ -7,11 +7,12 @@ STATIC_FILES = \
 	static/foo/bar.html \
 	static/auden.txt
 
-bin_PROGRAMS = site
+bin_PROGRAMS = site site-with-prefix
 # site_SOURCES = api.c
 nodist_site_SOURCES = site.c site.h
+nodist_site_with_prefix_SOURCES = site-with-prefix.c site-with-prefix.h
 
-BUILT_SOURCES = site.c site.h
+BUILT_SOURCES = site.c site.h site-with-prefix.c site-with-prefix.h
 
 EXTRA_DIST = $(STATIC_FILES)
 
@@ -30,5 +31,8 @@ TESTS = $(check_PROGRAMS)
 #
 site.c site.h: $(STATIC_FILES)
 	$(CAN) -o site.c -H site.h $(SITE_DIR)
+
+site-with-prefix.c site-with-prefix.h: $(STATIC_FILES)
+	$(CAN) -o site-with-prefix.c -H site-with-prefix.h -p static $(SITE_DIR)
 
 CLEANFILES = $(BUILT_SOURCES)

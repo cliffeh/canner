@@ -28,14 +28,14 @@ struct callback_entry
 };
 extern TAILQ_HEAD (, callback_entry) callbacks_head;
 extern void generate_callbacks (FILE *out, const char *rootdir,
-                                const char *relpath);
+                                const char *relpath, const char *prefix);
 
 #ifndef DEFAULT_HEADER_NAME
 #define DEFAULT_HEADER_NAME "site.h"
 #endif
 
-static char path[PATH_MAX] = { 0 };
-static char *c_out_filename = "-", *h_out_filename;
+static char path[PATH_MAX] = { 0 }, prefix[PATH_MAX] = { 0 };
+static char *c_out_filename = "-", *h_out_filename, *prefix_arg = "";
 static FILE *c_out, *h_out;
 
 static int
@@ -47,13 +47,15 @@ parse_options (int argc, const char *argv[])
   poptContext optCon;
   struct poptOption options[]
       = { /* longName, shortName, argInfo, arg, val, descrip, argDescript */
-          { "outfile", 'o', POPT_ARG_STRING | POPT_ARGFLAG_SHOW_DEFAULT,
-            &c_out_filename, 'o', "specify output file name", "FILE" },
           { "header", 'H', POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL,
             &h_out_filename, 'H',
             "also generate a C header file (filename defaults to "
             "\"" DEFAULT_HEADER_NAME "\" if FILE not specified)",
             "FILE" },
+          { "outfile", 'o', POPT_ARG_STRING | POPT_ARGFLAG_SHOW_DEFAULT,
+            &c_out_filename, 'o', "output file name", "FILE" },
+          { "prefix", 'p', POPT_ARG_STRING | POPT_ARGFLAG_SHOW_DEFAULT,
+            &prefix_arg, 'p', "URI prefix", 0 },
           POPT_AUTOHELP POPT_TABLEEND
         };
 
@@ -101,6 +103,20 @@ parse_options (int argc, const char *argv[])
     }
   path[strlen (path)] = '/';
 
+  // ensure leading slash and no trailing slash
+  if (*prefix_arg != '/')
+    {
+      sprintf (prefix, "/%s", prefix_arg);
+    }
+  else
+    {
+      sprintf (prefix, "%s", prefix_arg);
+    }
+  while (prefix[strlen (prefix) - 1] == '/')
+    {
+      prefix[strlen (prefix) - 1] = 0;
+    }
+
   c_out = (!c_out_filename || (strcmp (c_out_filename, "-") == 0))
               ? stdout
               : fopen (c_out_filename, "w");
@@ -128,7 +144,6 @@ int
 main (int argc, const char *argv[])
 {
   struct callback_entry *cb;
-  char *prefix = "";
   const char *dir;
   int i, rc;
 
@@ -148,7 +163,7 @@ main (int argc, const char *argv[])
   fprintf (c_out, "%s\n", main_template[0]);
 
   TAILQ_INIT (&callbacks_head);
-  generate_callbacks (c_out, path, prefix);
+  generate_callbacks (c_out, path, "", prefix);
 
   fprintf (c_out,
            "void canner_register_static_callbacks (struct evhttp *http)\n{\n");
@@ -156,8 +171,10 @@ main (int argc, const char *argv[])
   while ((cb = TAILQ_FIRST (&callbacks_head)))
     {
       TAILQ_REMOVE (&callbacks_head, cb, entries);
+
       fprintf (c_out, "  evhttp_set_cb (http, \"%s\", %s, 0);\n", cb->path,
                cb->name);
+
       free (cb);
     }
   fprintf (c_out, "}\n");
