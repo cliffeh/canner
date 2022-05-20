@@ -122,18 +122,25 @@ display_listen_sock (struct evhttp_bound_socket *handle)
   return 0;
 }
 
+static void
+term_cb (int sig, short events, void *arg)
+{
+  struct event_base *base = arg;
+  log_info ("received signal %i; terminating...", sig);
+  event_base_loopbreak (base);
+}
+
 int
 main (int argc, char *argv[])
 {
   struct event_base *base = NULL;
   struct evhttp *http = NULL;
   struct evhttp_bound_socket *handle = NULL;
+  struct event *term = NULL;
   struct options o = parse_opts (argc, argv);
 
   if (!(base = event_base_new ()))
     log_fatal ("could not create event_base");
-
-  // TODO signal handling for reload/shutdown!
 
   if (!(http = evhttp_new (base)))
     log_fatal ("could not create evhttp");
@@ -155,6 +162,17 @@ main (int argc, char *argv[])
   display_listen_sock (handle);
   fflush (stdout); // make sure logs have been flushed before we start blocking
                    // on the event loop
+
+  // listen for signals, exit gracefully
+  if (!(term = evsignal_new (base, SIGHUP, term_cb, base))
+      || event_add (term, 0))
+    log_fatal ("couldn't register signal handler for SIGHUP");
+  if (!(term = evsignal_new (base, SIGINT, term_cb, base))
+      || event_add (term, 0))
+    log_fatal ("couldn't register signal handler for SIGINT");
+  if (!(term = evsignal_new (base, SIGQUIT, term_cb, base))
+      || event_add (term, 0))
+    log_fatal ("couldn't register signal handler for SIGQUIT");
 
   event_base_dispatch (base);
 
