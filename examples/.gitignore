@@ -5,6 +5,9 @@ site
 site-with-prefix.c
 site-with-prefix.h
 site-with-prefix
+site-with-custom.c
+site-with-custom.h
+site-with-custom
 
 # autotools stuff
 .deps/

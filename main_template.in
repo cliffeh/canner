@@ -141,6 +141,10 @@ main (int argc, char *argv[])
   // TODO returns a 501 for unknown methods, and we probably really want a 405
   evhttp_set_allowed_methods (http, EVHTTP_REQ_GET);
 
+#ifdef CANNER_HAS_CUSTOM_CALLBACKS
+  canner_register_custom_callbacks (http);
+#endif
+
   canner_register_static_callbacks (http);
 
   log_info ("binding to %s:%i", o.bind, o.port);

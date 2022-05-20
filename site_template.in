@@ -34,5 +34,6 @@ void log_access (const char *client_ip, time_t *rawtime, const char *method,
                  const char *uri, int status, long size);
 
 void canner_register_static_callbacks (struct evhttp *http);
+void canner_register_custom_callbacks (struct evhttp *http);
 
 #endif
