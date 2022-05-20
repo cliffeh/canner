@@ -40,7 +40,9 @@ usage: site [ OPTS ]
 ## How do I build it?
 
 ### Dependencies
-canner depends on **libpopt** for argument parsing. The source code it generates depends on **libevent** for serving http traffic.
+canner itself doesn't depend on anything. However, it builds its own version of popt which has its own requirements.
+
+The source code that canner generates depends on **libevent** for serving http traffic.
 
 ### Building
 canner uses the autotools build system, so building it should be as simple as:

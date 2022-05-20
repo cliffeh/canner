@@ -1,5 +1,6 @@
 bin_PROGRAMS = can
 can_SOURCES = callbacks.c main.c util.c
+can_LDADD = popt/src/libpopt.la
 nodist_can_SOURCES = main_template.h site_template.h static_cb_template.h
 
 EXTRA_DIST = mkh.sh main_template.in site_template.in static_cb_template.in
@@ -20,7 +21,7 @@ dist_doc_DATA = \
 	README.md \
 	TODO.md
 
-SUBDIRS = . examples test
+SUBDIRS = popt . examples test
 
 dist_noinst_SCRIPTS = autogen.sh
 

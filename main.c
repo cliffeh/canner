@@ -1,7 +1,7 @@
 #include "config.h"
+#include "popt/src/popt.h"
 #include <errno.h>
 #include <limits.h>
-#include <popt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
