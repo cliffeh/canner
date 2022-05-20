@@ -19,7 +19,7 @@ The full list of options for `can`:
 ```
 Usage: can [OPTION...] DIR
 Options:
-  -H, --header[=FILE]     also generate a C header file (filename defaults to "site.h" if FILE not specified)
+  -H, --header[=FILE]     also generate a C header file (FILE defaults to "site.h")
   -o, --outfile=FILE      output file name (default: "-")
   -p, --prefix=STRING     URI prefix (default: "")
 

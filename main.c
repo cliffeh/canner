@@ -49,8 +49,8 @@ parse_options (int argc, const char *argv[])
       = { /* longName, shortName, argInfo, arg, val, descrip, argDescript */
           { "header", 'H', POPT_ARG_STRING | POPT_ARGFLAG_OPTIONAL,
             &h_out_filename, 'H',
-            "also generate a C header file (filename defaults to "
-            "\"" DEFAULT_HEADER_NAME "\" if FILE not specified)",
+            "also generate a C header file (FILE defaults to "
+            "\"" DEFAULT_HEADER_NAME "\")",
             "FILE" },
           { "outfile", 'o', POPT_ARG_STRING | POPT_ARGFLAG_SHOW_DEFAULT,
             &c_out_filename, 'o', "output file name", "FILE" },
