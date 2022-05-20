@@ -7,5 +7,4 @@
 * support custom 404s?
 * valgrind (memory leak testing)
 * support more content types (images?)
-* implement dynamic callbacks
 * make examples/site.c depend on canner executable
