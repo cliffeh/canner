@@ -23,7 +23,7 @@ static const char *main_template[] = {
 struct callback_entry
 {
   char name[PATH_MAX];
-  char path[PATH_MAX];
+  char path[PATH_MAX * 2]; // double it to get rid of sprintf overflow warnings
   TAILQ_ENTRY (callback_entry) entries;
 };
 extern TAILQ_HEAD (, callback_entry) callbacks_head;
