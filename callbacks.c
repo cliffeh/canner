@@ -42,25 +42,10 @@ print_callback (FILE *out, const char *cbname, const char *filename)
   rewind (fp);
 
   fprintf (out, "// %s\n", filename);
-  fprintf (out, "#define %s_CONTENT \\\n", cbname);
-  fprintf (out, "\"");
+  fprintf (out, "#define %s_CONTENT \"", cbname);
   while ((c = fgetc (fp)) != EOF)
     {
-      // TODO probably need more thorough escaping...
-      switch (c)
-        {
-        case '%':
-          fprintf (out, "%%%%");
-          break;
-        case '"':
-          fprintf (out, "\\\"");
-          break;
-        case '\n':
-          fprintf (out, "\\n\" \\\n\"");
-          break;
-        default:
-          fprintf (out, "%c", c);
-        }
+      fprintf(out, "\\x%02X", c);
     }
   fprintf (out, "\"\n");
 
