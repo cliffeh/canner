@@ -40,9 +40,17 @@ usage: site [ OPTS ]
 ## How do I build it?
 
 ### Dependencies
-canner itself doesn't depend on anything. However, it builds its own version of popt which has its own requirements. It also pulls in popt as a submodule, so if you're cloning from git you may need to do:
+canner itself doesn't depend on anything. However, it builds its own version of popt which has its own build-time requirements. It also pulls in popt as a submodule, so if you're cloning from git you can either do:
 
-`git submodule update`
+```
+git clone --recurse-submodules git@github.com:cliffeh/canner.git
+```
+
+...or, if you have already cloned without `--recurse-submodules` you can do the following to pull in popt:
+
+```
+git submodule update
+```
 
 The source code that canner generates depends on **libevent** for serving http traffic.
 
@@ -50,7 +58,7 @@ The source code that canner generates depends on **libevent** for serving http t
 canner uses the autotools build system, so building it should be as simple as:
 
 ```bash
-# you should only need to do this if you've cloned directly from git;
+# you should only need to run autogen.sh if you've cloned directly from git;
 # distribution tarballs should come with everything they need already
 ./autogen.sh
 
