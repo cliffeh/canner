@@ -8,4 +8,3 @@
 * support custom 404s?
 * valgrind (memory leak testing)
 * support more content types (images?)
-* make examples/site.c depend on canner executable

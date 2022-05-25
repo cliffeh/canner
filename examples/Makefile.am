@@ -30,14 +30,17 @@ TESTS = $(check_PROGRAMS)
 #
 #   $(CC) -o $@ $< -Wl,-Bstatic -levent -Wl,-Bdynamic
 #
-site.c site.h: $(STATIC_FILES)
+site.c site.h: $(STATIC_FILES) $(CAN)
 	$(CAN) -o site.c -H site.h $(SITE_DIR)
 
-site-with-prefix.c site-with-prefix.h: $(STATIC_FILES)
+site-with-prefix.c site-with-prefix.h: $(STATIC_FILES) $(CAN)
 	$(CAN) -o site-with-prefix.c -H site-with-prefix.h -p static $(SITE_DIR)
 
-site-with-custom.c site-with-custom.h: $(STATIC_FILES)
+site-with-custom.c site-with-custom.h: $(STATIC_FILES) $(CAN)
 	$(CAN) -o site-with-custom.c -H site-with-custom.h $(SITE_DIR)
 	echo -e '\n#define CANNER_HAS_CUSTOM_CALLBACKS\n' >> site-with-custom.h
+
+$(CAN):
+	make -C ..
 
 CLEANFILES = $(BUILT_SOURCES)
