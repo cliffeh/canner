@@ -40,7 +40,9 @@ usage: site [ OPTS ]
 ## How do I build it?
 
 ### Dependencies
-canner itself doesn't depend on anything. However, it builds its own version of popt which has its own requirements.
+canner itself doesn't depend on anything. However, it builds its own version of popt which has its own requirements. It also pulls in popt as a submodule, so if you're cloning from git you may need to do:
+
+`git submodule update`
 
 The source code that canner generates depends on **libevent** for serving http traffic.
 
