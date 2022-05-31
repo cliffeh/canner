@@ -38,7 +38,7 @@ site-with-prefix.c site-with-prefix.h: $(STATIC_FILES) $(CAN)
 
 site-with-custom.c site-with-custom.h: $(STATIC_FILES) $(CAN)
 	$(CAN) -o site-with-custom.c -H site-with-custom.h $(SITE_DIR)
-	echo -e '\n#define CANNER_HAS_CUSTOM_CALLBACKS\n' >> site-with-custom.h
+	printf '\n#define CANNER_HAS_CUSTOM_CALLBACKS\n' >> site-with-custom.h
 
 $(CAN):
 	make -C ..
