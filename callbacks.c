@@ -5,6 +5,10 @@
 #include <string.h>
 #include <sys/queue.h>
 
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 struct callback_entry
 {
   char name[PATH_MAX];

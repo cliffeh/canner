@@ -9,6 +9,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 static const char *site_h_template[] = {
 #include "site_template.h"
   0,
