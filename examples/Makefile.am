@@ -8,6 +8,11 @@ STATIC_FILES = \
 	static/auden.txt
 
 bin_PROGRAMS = site site-with-prefix site-with-custom
+# for reasons I don't have time to track down AC_CHECK_LIBS doesn't seem to be
+# working for injecting -levent, so we'll just do it ourselves here
+site_LDADD = -levent
+site_with_prefix_LDADD = -levent
+site_with_custom_LDADD = -levent
 nodist_site_SOURCES = site.c site.h
 nodist_site_with_prefix_SOURCES = site-with-prefix.c site-with-prefix.h
 site_with_custom_SOURCES = api.c dice.c
